@@ -2,112 +2,61 @@ package com.bbsim;
 
 public class Bet
 {
-	boolean isTeamBet;
-	Team favorite;
-	Team underdog;
-	Player player;
-	
+	BetClass betClass;
 	BetType type;
+	
 	float value;
 	
-	private int attempts = 0;
-	private int wins = 0;
+	//Subjects
+	Team favorite;
+	Team underdog;
+	Batter batter;
+	Pitcher pitcher;
 	
-	public Bet(BetType type, float value, Player player) {
+
+	
+	public Bet(BetClass betClass, BetType type) {
 		this.type = type;
-		this.value = value;
-		
-		if (type.isTeamBet()) {
-			System.err.println(type + " is a team bet!");
-		}
-	
-		this.isTeamBet = false;
-		this.favorite = null;
-		this.underdog = null;
-		this.player = player;
+		this.betClass = betClass;
 	}
 	
-	public Bet(BetType type, float value, Team favorite, Team underdog) {
-		this.type = type;
-		this.value = value;
-		
-		if (!type.isTeamBet()) {
-			System.err.println(type + " is a player bet!");
-		}
-		
-		this.isTeamBet = true;
+	public void setSubject(Team favorite, Team underdog) {
 		this.favorite = favorite;
 		this.underdog = underdog;
-		this.player = null;
+		this.batter = null;
+		this.pitcher = null;
 	}
 	
-	public boolean evaluate() {
-		switch (type) {
-			case MONEY_LINE:
-				if (favorite.getRuns() >= underdog.getRuns()) {
-					return true;
-				}
-				break;
-			case RUN_LINE:
-				if (favorite.getRuns() + value > underdog.getRuns()) {
-					return true;
-				}
-				break;
-			case SO_OVER:
-				if (((Pitcher) player).getSOs() >= value) {
-					return true;
-				}
-				break;
-			case ONE_HIT:
-				if (((Batter) player).getHits() >= 1) {
-					return true;
-				}
-				break;
-			case TWO_HIT:
-				if (((Batter) player).getHits() >= 2) {
-					return true;
-				}
-				break;
-			case TWO_BASES:
-				if (((Batter) player).getBases() >= 2) {
-					return true;
-				}
-				break;
-			case THREE_BASES:
-				if (((Batter) player).getBases() >= 3) {
-					return true;
-				}
-				break;
-			case HOME_RUN:
-				if (((Batter) player).getHomers() >= 1) {
-					return true;
-				}
-				break;
-			case RBI:
-				if (((Batter) player).getRBI() >= 1) {
-					return true;
-				}
-				break;
-			case RUN:
-				if (((Batter) player).getRuns() >= 1) {
-					return true;
-				}
-				break;
-		}
-		
-		return false;
+	public void setSubject(Batter batter) {
+		this.batter = batter;
+		this.pitcher = null;
+		this.favorite = null;
+		this.underdog = null;
 	}
 	
-	public void recordResult(boolean win) {
-		attempts++;
-		if (win) {
-			wins++;
-		}
+	public void setSubject(Pitcher pitcher) {
+		this.pitcher = pitcher;
+		this.batter = null;
+		this.favorite = null;
+		this.underdog = null;
 	}
 	
-	public float getWinPct() {
-		return (float) wins / (float) attempts;
+	public void setValue(float value) {
+		this.value = value;
 	}
+	
+	public BetClass getBetClass() {
+		return this.betClass;
+	}
+	
+	public boolean requiresValue() {
+		return this.type.doesRequireValue();
+	}
+	
+	public void print() {
+		System.out.println("A " + type + " BET");
+	}
+	
 	
 	
 }

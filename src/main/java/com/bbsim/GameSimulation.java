@@ -2,7 +2,7 @@ package com.bbsim;
 
 import java.util.Random;
 
-public class Game
+public class GameSimulation
 {
 	private static final float SCORE_FROM_SECOND_CHANCE_0_OUT = 0.39f;
 	private static final float SCORE_FROM_SECOND_CHANCE_1_OUT = 0.51f;
@@ -23,7 +23,7 @@ public class Game
 	int homeLineupIdx;
 	int awayLineupIdx;
 	
-	public Game(Team homeTeam, Team awayTeam) {
+	public GameSimulation(Team homeTeam, Team awayTeam) {
 		this.homeTeam = homeTeam;
 		this.awayTeam = awayTeam;
 		

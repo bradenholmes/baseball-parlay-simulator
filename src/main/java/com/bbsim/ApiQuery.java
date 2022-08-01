@@ -5,8 +5,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -23,10 +25,26 @@ import com.google.gson.JsonParser;
 
 public class ApiQuery
 {
+	public static class Game {
+		public String homeTeam;
+		public String awayTeam;
+		public String gameId;
+		
+		public Game(String homeTeam, String awayTeam, String gameId) {
+			this.homeTeam = homeTeam;
+			this.awayTeam = awayTeam;
+			this.gameId = gameId;
+		}
+		
+		public String toString() {
+			return gameId + " - " + awayTeam + " @ " + homeTeam;
+		}
+	}
+	
 	public static class PlayerNameId {
-		String name;
-		String id;
-		String fullId;
+		public String name;
+		public String id;
+		public String fullId;
 		
 		public PlayerNameId(String name, String id, String fullId) {
 			this.name = name;
@@ -36,8 +54,8 @@ public class ApiQuery
 	}
 	
 	public static class Lineups {
-		TeamLineup homeLineup;
-		TeamLineup awayLineup;
+		public TeamLineup homeLineup;
+		public TeamLineup awayLineup;
 		
 		public Lineups(TeamLineup homeLineup, TeamLineup awayLineup) {
 			this.homeLineup = homeLineup;
@@ -46,9 +64,9 @@ public class ApiQuery
 	}
 	
 	public static class TeamLineup {
-		String teamName;
-		PlayerNameId pitcher;
-		PlayerNameId[] batters;
+		public String teamName;
+		public PlayerNameId pitcher;
+		public PlayerNameId[] batters;
 		
 		public TeamLineup(String teamName, PlayerNameId pitcher, PlayerNameId[] batters) {
 			this.teamName = teamName;
@@ -156,6 +174,44 @@ public class ApiQuery
 	    	}
 			
 			return stats;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static List<Game> getAllGames() {
+		try {
+			URL url = new URL(MLB_LINEUPS);
+			URLConnection request = url.openConnection();
+			request.connect();
+			
+			BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+			StringBuilder sb = new StringBuilder();
+			String inputLine;
+			while((inputLine = in.readLine()) != null) {
+				sb.append(inputLine);
+				sb.append("\n");
+			}
+			in.close();
+			
+			
+			List<Game> games = new ArrayList<>();
+			
+			Document doc = Jsoup.parse(sb.toString());
+			Elements matchups = doc.getElementsByClass("starting-lineups__matchup ");
+			Iterator<Element> it = matchups.iterator();
+			while(it.hasNext()) {
+				Element e = it.next();
+				String id = e.attr("data-gamepk");
+				String homeTeam = e.getElementsByClass("starting-lineups__team-name starting-lineups__team-name--home").text();
+				String awayTeam = e.getElementsByClass("starting-lineups__team-name starting-lineups__team-name--away").text();
+				
+				games.add(new Game(homeTeam, awayTeam, id));
+			}
+
+			return games;
 			
 		} catch (Exception e) {
 			e.printStackTrace();

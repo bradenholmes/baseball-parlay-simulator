@@ -1,20 +1,40 @@
 package com.bbsim;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public enum BetType
 {
-	MONEY_LINE(true), RUN_LINE(true), SO_OVER, ONE_HIT, TWO_HIT, TWO_BASES, THREE_BASES, HOME_RUN, RBI, RUN;
+	MONEY_LINE(BetClass.TEAM, false), RUN_LINE(BetClass.TEAM, true), SO_OVER(BetClass.PITCHER, true),
+	ONE_HIT(BetClass.BATTER, false), TWO_HIT(BetClass.BATTER, false), TWO_BASES(BetClass.BATTER, false), 
+	THREE_BASES(BetClass.BATTER, false), HOME_RUN(BetClass.BATTER, false), RBI(BetClass.BATTER, false), RUN(BetClass.BATTER, false),
+	FIRST_INNING(BetClass.GAME, true), RUNS_OVER(BetClass.GAME, true), RUNS_UNDER(BetClass.GAME, true);
 	
-	private boolean isTeamBet;
+	final BetClass betClass;
+	final boolean requireValue;
 	
-	BetType(){
-		this.isTeamBet = false;
+	BetType(BetClass betClass, boolean reqValue){
+		this.betClass = betClass;
+		this.requireValue = reqValue;
 	}
 	
-	BetType(boolean isTeamBet) {
-		this.isTeamBet = isTeamBet;
+	
+	public static List<BetType> getTypesOfClass(BetClass betClass) {
+		List<BetType> types = new ArrayList<>();
+		for (BetType t : BetType.values()) {
+			if (t.getBetClass() == betClass) {
+				types.add(t);
+			}
+		}
+		
+		return types;
 	}
 	
-	public boolean isTeamBet() {
-		return isTeamBet;
+	public BetClass getBetClass() {
+		return betClass;
+	}
+	
+	public boolean doesRequireValue() {
+		return requireValue;
 	}
 }
