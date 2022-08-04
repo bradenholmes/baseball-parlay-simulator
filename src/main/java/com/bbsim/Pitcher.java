@@ -2,12 +2,12 @@ package com.bbsim;
 
 public class Pitcher extends Player
 {
-	private StateVar handed;
-	private int avgInningsPerGame;
+	transient private StateVar handed;
+	transient private int avgInningsPerGame;
 	
-	private float hitChance, kChance, bbChance;
+	transient private float hitChance, kChance, bbChance;
 	
-	private int igKs = 0;
+	transient private int igKs = 0;
 	
 	public Pitcher(String name, String playerId, StateVar homeAway) {
 		super(name, playerId, homeAway);

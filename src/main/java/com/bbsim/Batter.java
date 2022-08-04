@@ -7,17 +7,17 @@ import com.bbsim.ApiQuery.BattingSplit;
 
 public class Batter extends Player
 {
-	private Map<BattingSplitType, BattingSplit> splits;
+	transient private Map<BattingSplitType, BattingSplit> splits;
 	
-	private int stolenBases, caughtStealing;
-	private float flyoutChance;
-	private float gidpChance;
+	transient private int stolenBases, caughtStealing;
+	transient private float flyoutChance;
+	transient private float gidpChance;
 	
-	private int igHits = 0;
-	private int igBases = 0;
-	private int igRBI = 0;
-	private int igRuns = 0;
-	private int igHomers = 0;
+	transient private int igHits = 0;
+	transient private int igBases = 0;
+	transient private int igRBI = 0;
+	transient private int igRuns = 0;
+	transient private int igHomers = 0;
 	
 	public Batter(String name, String playerId, StateVar homeAway) {
 		super(name, playerId, homeAway);

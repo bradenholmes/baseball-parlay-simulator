@@ -4,12 +4,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.bbsim.CurrentGameData.BatterStats;
 import com.bbsim.CurrentGameData.PitcherStats;
-import com.bbsim.SimulationData.PitcherData;
 
 public class Bet implements Comparable<Bet>
 {
 	
-	private static final char CHECK = '✓';
+	private static final char CHECK = '$';
 	private static final char FAIL = 'X';
 	private static final char WINNING_NOW = '~';
 	private static final char LOSING_NOW = '!';
@@ -226,6 +225,14 @@ public class Bet implements Comparable<Bet>
 	}
 	
 	public void printStatus(CurrentGameData gameData) {
+		if (gameData == null || !gameData.isGameLive) {
+			printStatusInactive();
+		} else {
+			printStatusActive(gameData);
+		}
+	}
+	
+	private void printStatusActive(CurrentGameData gameData) {
 		StringBuilder sb = new StringBuilder();
 		String namePart;
 		String valuePart;
@@ -234,8 +241,12 @@ public class Bet implements Comparable<Bet>
 		PitcherStats pDat;
 		BatterStats bDat;
 		
-		int favRuns = favorite.getHomeAway() == StateVar.HOME ? gameData.gameStats.homeScore : gameData.gameStats.awayScore;
-		int udRuns = underdog.getHomeAway() == StateVar.HOME ? gameData.gameStats.homeScore : gameData.gameStats.awayScore;
+		int favRuns = 0;
+		int udRuns = 0;
+		if (favorite != null && underdog != null) {
+			favRuns = favorite.getHomeAway() == StateVar.HOME ? gameData.gameStats.homeScore : gameData.gameStats.awayScore;
+			udRuns = underdog.getHomeAway() == StateVar.HOME ? gameData.gameStats.homeScore : gameData.gameStats.awayScore;
+		}
 
 		switch (type) {
 			case MONEY_LINE:
@@ -312,14 +323,14 @@ public class Bet implements Comparable<Bet>
 				valuePart = (int) value + "+ SO's";
 				boxes = new char[(int) value];
 				pDat = gameData.getPitcherOfId(pitcher.getPlayerId());
-				for (int i = 1; i <= boxes.length; i++) {
-					if (i <= pDat.strikeouts) {
-						boxes[i-1] = CHECK;
+				for (int i = 0; i < boxes.length; i++) {
+					if (i < pDat.strikeouts) {
+						boxes[i] = CHECK;
 					} else {
 						if (pDat.stillPlaying) {
-							boxes[i-1] = EMPTY;
+							boxes[i] = EMPTY;
 						} else {
-							boxes[i-1] = FAIL;
+							boxes[i] = FAIL;
 						}
 						
 					}
@@ -346,16 +357,16 @@ public class Bet implements Comparable<Bet>
 				valuePart = "" + type;
 				bDat = gameData.getBatterOfId(batter.getPlayerId());
 				boxes = new char[2];
-				for (int i = 1; i <= 2; i++) {
-					if (i <= bDat.hits) {
-						boxes[i-1] = CHECK;
-					} else {
-						if (bDat.stillPlaying) {
-							boxes[i-1] = EMPTY;
-						} else {
-							boxes[i-1] = FAIL;
-						}
-					}
+				char nohit = bDat.stillPlaying ? EMPTY : FAIL;
+				if (bDat.hits >= 2) {
+					boxes[0] = CHECK;
+					boxes[1] = CHECK;
+				} else if (bDat.hits == 1) {
+					boxes[0] = CHECK;
+					boxes[1] = nohit;
+				} else {
+					boxes[0] = nohit;
+					boxes[1] = nohit;
 				}
 				break;
 			case TWO_BASES:
@@ -363,16 +374,16 @@ public class Bet implements Comparable<Bet>
 				valuePart = "" + type;
 				bDat = gameData.getBatterOfId(batter.getPlayerId());
 				boxes = new char[2];
-				for (int i = 1; i <= 2; i++) {
-					if (i <= bDat.totalBases) {
-						boxes[i-1] = CHECK;
-					} else {
-						if (bDat.stillPlaying) {
-							boxes[i-1] = EMPTY;
-						} else {
-							boxes[i-1] = FAIL;
-						}
-					}
+				char nobase = bDat.stillPlaying ? EMPTY : FAIL;
+				if (bDat.totalBases >= 2) {
+					boxes[0] = CHECK;
+					boxes[1] = CHECK;
+				} else if (bDat.totalBases == 1) {
+					boxes[0] = CHECK;
+					boxes[1] = nobase;
+				} else {
+					boxes[0] = nobase;
+					boxes[1] = nobase;
 				}
 				break;
 			case THREE_BASES:
@@ -380,16 +391,23 @@ public class Bet implements Comparable<Bet>
 				valuePart = "" + type;
 				bDat = gameData.getBatterOfId(batter.getPlayerId());
 				boxes = new char[3];
-				for (int i = 1; i <= 3; i++) {
-					if (i <= bDat.totalBases) {
-						boxes[i-1] = CHECK;
-					} else {
-						if (bDat.stillPlaying) {
-							boxes[i-1] = EMPTY;
-						} else {
-							boxes[i-1] = FAIL;
-						}
-					}
+				char no = bDat.stillPlaying ? EMPTY : FAIL;
+				if (bDat.totalBases >= 3) {
+					boxes[0] = CHECK;
+					boxes[1] = CHECK;
+					boxes[2] = CHECK;
+				} else if (bDat.totalBases == 2) {
+					boxes[0] = CHECK;
+					boxes[1] = CHECK;
+					boxes[2] = no;
+				} else if (bDat.totalBases == 1) {
+					boxes[0] = CHECK;
+					boxes[1] = no;
+					boxes[2] = no;
+				} else {
+					boxes[0] = no;
+					boxes[1] = no;
+					boxes[2] = no;
 				}
 
 				break;
@@ -448,6 +466,95 @@ public class Bet implements Comparable<Bet>
 		sb.append(StringUtils.rightPad(valuePart, 14));
 		sb.append(createCheckboxes(boxes));
 		
+		System.out.println(App.centerText(sb.toString(), false, true));
+	}
+	
+	private void printStatusInactive() {
+		StringBuilder sb = new StringBuilder();
+		String namePart;
+		String valuePart;
+		
+		char[] boxes = null;
+
+		switch (type) {
+			case MONEY_LINE:
+				namePart = favorite.getName();
+				valuePart = "win";
+				boxes = emptyBoxes(1);
+				
+				break;
+			case RUN_LINE:
+				namePart = favorite.getName();
+				valuePart = (value > 0 ? "+" : "") + value;
+				boxes = emptyBoxes(1);
+				break;
+			case RUNS_OVER:
+				namePart = "Over";
+				valuePart = value + " runs";
+				boxes = emptyBoxes(1);
+				break;
+			case RUNS_UNDER:
+				namePart = "Under";
+				valuePart = value + " runs";
+				boxes = emptyBoxes(1);
+				break;
+			case FIRST_INNING:
+				namePart = "First inning";
+				valuePart = "" + FirstInningBet.ofOridinal((int)value);
+				boxes = emptyBoxes(1);
+				break;
+			case SO_OVER:
+				namePart = pitcher.getName();
+				valuePart = (int) value + "+ SO's";
+				boxes = emptyBoxes((int) value);		
+				break;
+			case ONE_HIT:
+				namePart = batter.getName();
+				valuePart = "" + type;
+				boxes = new char[1];
+				boxes = emptyBoxes(1);
+				break;
+			case TWO_HIT:
+				namePart = batter.getName();
+				valuePart = "" + type;
+				boxes = emptyBoxes(2);
+				break;
+			case TWO_BASES:
+				namePart = batter.getName();
+				valuePart = "" + type;
+				boxes = emptyBoxes(2);
+				break;
+			case THREE_BASES:
+				namePart = batter.getName();
+				valuePart = "" + type;
+				boxes = emptyBoxes(3);
+				break;
+			case HOME_RUN:
+				namePart = batter.getName();
+				valuePart = "" + type;
+				boxes = emptyBoxes(1);
+				break;
+			case RBI:
+				namePart = batter.getName();
+				valuePart = "" + type;
+				boxes = emptyBoxes(1);
+				break;
+			case RUN:
+				namePart = batter.getName();
+				valuePart = "" + type;
+				boxes = emptyBoxes(1);
+				break;
+			default:
+				boxes = emptyBoxes(1);
+				namePart = "";
+				valuePart = "";
+		}
+
+		sb.append(StringUtils.leftPad(namePart, 14));
+		sb.append(" ");
+		sb.append(StringUtils.rightPad(valuePart, 14));
+		sb.append(createCheckboxes(boxes));
+		
 		System.out.println(App.leftJustifyText(sb.toString(), 5, true));
 	}
 
@@ -469,6 +576,14 @@ public class Bet implements Comparable<Bet>
 		}
 		
 		return sb.toString();
+	}
+	
+	private char[] emptyBoxes(int count) {
+		char[] boxes = new char[count];
+		for (int i = 0; i < count; i++) {
+			boxes[i] = EMPTY;
+		}
+		return boxes;
 	}
 	
 	

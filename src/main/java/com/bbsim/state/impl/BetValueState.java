@@ -53,6 +53,7 @@ public class BetValueState extends ScreenState
 			bet.setValue(value);
 			
 			this.changeState(App.PARLAY_BUILDER_STATE, bet);
+			return;
 			
 		} catch (Exception e) {
 			System.out.println("Please enter a float value!");

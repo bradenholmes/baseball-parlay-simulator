@@ -5,7 +5,7 @@ public abstract class Player
 	private String name;
 	private String playerId;
 	private StateVar homeAway;
-	private boolean includeStats;
+	transient private boolean includeStats;
 	
 	public Player(String name, String playerId, StateVar homeAway) {
 		this.name = name;

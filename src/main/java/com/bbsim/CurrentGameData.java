@@ -12,6 +12,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementNotVisibleException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -93,13 +94,13 @@ public class CurrentGameData
 	public PitcherStats awayPitcherStats;
 	public PitcherStats homePitcherStats;
 	
-	
+	public boolean isGameLive = false;
 	
 
 	
 	
 	public CurrentGameData(Game game) {
-		this.game = new Game("", "", "661818");
+		this.game = game;
 		
 		gameStats = new GameStats();
 		awayBatterStats = new BatterStats[9];
@@ -159,9 +160,9 @@ public class CurrentGameData
 				}
 			});
 			
+			isGameLive = true;
 			
 			gameStats.set(elems.get(0).getText(), elems.get(1).getText(), elems.get(2).getText());
-			
 
 			Document doc = Jsoup.parse(elems.get(3).getAttribute("innerHTML"));
 			Elements tables = doc.getElementsByClass("table-savant");
@@ -175,9 +176,10 @@ public class CurrentGameData
 			
 			extractPitcherData(awayPitchers, awayPitcherStats);
 			extractPitcherData(homePitchers, homePitcherStats);
+
 			
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Throwable enve) {
+			isGameLive = false;
 		}
 	}
 	
@@ -195,12 +197,11 @@ public class CurrentGameData
 			while(valIt.hasNext()) {
 				values.add(valIt.next().text());
 			}
-			
-			
+
 			if (StringUtils.startsWith(values.get(0), "⤷")) {
 				result[batterIndex - 1].endGame();
 			} else {
-				result[batterIndex].set(playerId, values.get(3), values.get(4), values.get(5), values.get(6), values.get(7), values.get(2));
+				result[batterIndex].set(playerId, values.get(4), values.get(5), values.get(6), values.get(7), values.get(8), values.get(3));
 				batterIndex++;
 			}
 		}

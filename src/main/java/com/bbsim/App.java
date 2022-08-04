@@ -1,6 +1,5 @@
 package com.bbsim;
 
-import java.util.List;
 
 import com.bbsim.state.StateManager;
 import com.bbsim.state.impl.BetClassState;
@@ -10,12 +9,10 @@ import com.bbsim.state.impl.BetValueState;
 import com.bbsim.state.impl.GamePickerState;
 import com.bbsim.state.impl.MainState;
 import com.bbsim.state.impl.ParlayBuilderState;
+import com.bbsim.state.impl.ParlayPickerState;
 import com.bbsim.state.impl.SimulationState;
 
-/**
- * Hello world!
- *
- */
+
 public class App 
 {
 	public static final int LINE_WIDTH = 90;
@@ -27,6 +24,7 @@ public class App
 	public static final String MAIN_STATE = "main_state";
 	public static final String GAME_PICKER_STATE = "game_picker_state";
 	public static final String PARLAY_BUILDER_STATE = "parlay_builder_state";
+	public static final String PARLAY_PICKER_STATE = "parlay_picker_state";
 	public static final String BET_CLASS_STATE = "bet_class_state";
 	public static final String BET_TYPE_STATE = "bet_type_state";
 	public static final String BET_SUBJECT_STATE = "bet_subject_state";
@@ -44,6 +42,7 @@ public class App
     	manager.addState(MAIN_STATE, new MainState());
     	manager.addState(GAME_PICKER_STATE, new GamePickerState(ApiQuery.getAllGames()));
     	manager.addState(PARLAY_BUILDER_STATE, new ParlayBuilderState());
+    	manager.addState(PARLAY_PICKER_STATE, new ParlayPickerState());
     	manager.addState(BET_CLASS_STATE, new BetClassState());
     	manager.addState(BET_TYPE_STATE, new BetTypeState());
     	manager.addState(BET_SUBJECT_STATE, new BetSubjectState());

@@ -3,6 +3,8 @@ package com.bbsim.state.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.bbsim.App;
 import com.bbsim.Batter;
 import com.bbsim.Bet;
@@ -91,15 +93,19 @@ public class BetSubjectState extends ScreenState
 				bet.setSubject(simData.awayData.team, simData.homeData.team);
 				if (bet.requiresValue()) {
 					this.changeState(App.BET_VALUE_STATE, bet);
+					return;
 				} else {
 					this.changeState(App.PARLAY_BUILDER_STATE, bet);
+					return;
 				}
 			} else if ("2".equals(input)) {
 				bet.setSubject(simData.homeData.team, simData.awayData.team);
 				if (bet.requiresValue()) {
 					this.changeState(App.BET_VALUE_STATE, bet);
+					return;
 				} else {
 					this.changeState(App.PARLAY_BUILDER_STATE, bet);
+					return;
 				}
 			} else {
 				System.out.println("Please enter 1 or 2");
@@ -109,30 +115,38 @@ public class BetSubjectState extends ScreenState
 				bet.setSubject(simData.awayPitcherData.pitcher);
 				if (bet.requiresValue()) {
 					this.changeState(App.BET_VALUE_STATE, bet);
+					return;
 				} else {
 					this.changeState(App.PARLAY_BUILDER_STATE, bet);
+					return;
 				}
 			} else if ("2".equals(input)) {
 				bet.setSubject(simData.homePitcherData.pitcher);
 				if (bet.requiresValue()) {
 					this.changeState(App.BET_VALUE_STATE, bet);
+					return;
 				} else {
 					this.changeState(App.PARLAY_BUILDER_STATE, bet);
+					return;
 				}
 			} else {
 				System.out.println("Please enter 1 or 2");
 			}
 		} else if (this.bet.getBetClass() == BetClass.BATTER) {
 			try {
-				int idx = Integer.parseInt(input);
-				if (idx >= 0 && idx < batters.size()) {
-					bet.setSubject(batters.get(idx));
-					this.changeState(App.PARLAY_BUILDER_STATE, bet);
-				} else {
-					System.out.println("Number is out of range!");
+				List<Bet> batBets = new ArrayList<>();
+				String[] inputs = StringUtils.split(input, ' ');
+				for (int i = 0; i < inputs.length; i++) {
+					int idx = Integer.parseInt(inputs[i]);
+					Bet batBet = new Bet(bet.getBetClass(), bet.getBetType());
+					batBet.setSubject(batters.get(idx));
+					batBets.add(batBet);
 				}
+				
+				this.changeState(App.PARLAY_BUILDER_STATE, batBets);
+
 			} catch (Exception e) {
-				System.out.println("Please enter an integer from above.");
+				System.out.println("Check your inputs and try again");
 			}
 		}
 		

@@ -14,9 +14,10 @@ public class Parlay
 	List<Bet> bets;
 	float expectedWinRate;
 	
-	private float attempts;
-	private float parlayWins;
-	private Map<Bet, Integer> betWins;
+	
+	transient private float attempts;
+	transient private float parlayWins;
+	transient private Map<Bet, Integer> betWins;
 	
 	public Parlay(Game game) {
 		this.game = game;
@@ -31,6 +32,13 @@ public class Parlay
 		betWins.put(bet, 0);
 		
 		resetEvaluation();
+	}
+	
+	public void initialize() {
+		betWins = new HashMap<>();
+		for (Bet b : bets) {
+			betWins.put(b, 0);
+		}
 	}
 	
 	public void evaluate(GameSimulation sim) {
@@ -75,6 +83,10 @@ public class Parlay
 		return expectedWinRate;
 	}
 	
+	public List<Bet> getBets(){
+		return bets;
+	}
+	
 	public Game getGame() {
 		return game;
 	}
@@ -94,10 +106,16 @@ public class Parlay
 	
 	public void printStatus(CurrentGameData gameData) {
 		System.out.println(App.centerText(game.awayTeam + " " + gameData.gameStats.awayScore + " @ " + gameData.gameStats.homeScore + " " + game.homeTeam, false, true));
-		System.out.println(App.centerText(gameData.gameStats.liveStatus, false, true));
+		if (gameData.isGameLive) {
+			System.out.println(App.centerText(gameData.gameStats.liveStatus, false, true));
+		} else {
+			System.out.println(App.centerText("PREGAME", false, true));
+		}
+		
 		for (Bet b : bets) {
 			b.printStatus(gameData);
 		}
+		System.out.println(App.centerText("Expected win rate: " + expectedWinRate, false, true));
 		System.out.println(App.TABLE_HORIZ_LINE);
 	}
 }

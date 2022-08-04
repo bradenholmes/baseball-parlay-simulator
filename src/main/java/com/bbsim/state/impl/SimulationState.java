@@ -19,6 +19,8 @@ public class SimulationState extends FunctionState
 	SimulationData simData;
 	Parlay parlay;
 	
+	boolean saveToMain;
+	
 	@Override
 	public void init(Object... params) {
 		
@@ -31,7 +33,7 @@ public class SimulationState extends FunctionState
 			this.simGame = (Game) params[0];
 			this.simData = null;
 			this.parlay = null;
-		} else if (params.length == 2) {
+		} else if (params.length == 3) {
 			if (!(params[0] instanceof SimulationData)) {
 				System.err.println("ERROR: First SimulationState argument must be a Game object");
 				return;
@@ -41,9 +43,14 @@ public class SimulationState extends FunctionState
 				System.err.println("ERROR: Second SimulationState argument must be a Parlay object");
 				return;
 			}
+			
+			if (!(params[2] instanceof Boolean)) {
+				System.err.println("ERROR: Third SimulationState argument must be a boolean");
+			}
 			this.simGame = null;
 			this.simData = (SimulationData) params[0];
 			this.parlay = (Parlay) params[1];
+			this.saveToMain = (boolean) params[2];
 		} else {
 			System.err.println("ERROR: Wrong number of arguments passed to SimulationState init method!");
 			return;
@@ -132,7 +139,12 @@ public class SimulationState extends FunctionState
     	
     	parlay.endEvaluation();
     	
-    	return new FunctionResult(App.PARLAY_BUILDER_STATE, parlay);
+    	if (saveToMain) {
+    		return new FunctionResult(App.MAIN_STATE, parlay);
+    	} else {
+    		return new FunctionResult(App.PARLAY_BUILDER_STATE, parlay);
+    	}
+    	
 	}
 
 }

@@ -66,6 +66,7 @@ public class BetTypeState extends ScreenState
 			if (idx >= 0 && idx < types.size()) {
 				Bet bet = new Bet(betClass, types.get(idx));
 				this.changeState(App.BET_SUBJECT_STATE, simData, bet);
+				return;
 			}
 		} catch (Exception e) {
 			System.out.println("Unknown input!");

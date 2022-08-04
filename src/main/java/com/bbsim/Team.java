@@ -12,11 +12,11 @@ public class Team
 	
 	private StateVar homeAway;
 	private String name;
-	private Pitcher pitcher;
-	private Batter[] batters;
+	transient private Pitcher pitcher;
+	transient private Batter[] batters;
 	
-	private int igScore;
-	private int firstInningScore;
+	transient private int igScore;
+	transient private int firstInningScore;
 	
 	public Team(StateVar homeAway, TeamLineup lineup) {
 		this.homeAway = homeAway;

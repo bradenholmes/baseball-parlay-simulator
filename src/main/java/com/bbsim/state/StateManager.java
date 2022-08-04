@@ -8,8 +8,11 @@ public class StateManager
 {
 	private Scanner scanner;
 	
+	private boolean running = false;
 	private Map<String, State> states;
 	private State activeState;
+	
+	private boolean didStateChange = false;
 	
 	public StateManager() {
 		scanner = new Scanner(System.in);
@@ -32,10 +35,22 @@ public class StateManager
 	 * @param params
 	 */
 	public void activateManager(String initialStateId, Object... params) {
+		running = true;
 		changeState(initialStateId, params);
+		
+		while(running) {
+			update();
+		}
+	}
+	
+	public void killManager() {
+		activeState.end();
+		activeState.setInactive();
+		running = false;
 	}
 	
 	protected void changeState(String nextStateId, Object... params) {
+		
 		if (activeState != null) {
 			activeState.end();
 		}
@@ -44,7 +59,7 @@ public class StateManager
 		if (nextState != null) {
 			activeState = nextState;
 			activeState.start(params);
-			activeState.run();
+			didStateChange = true;
 		} else {
 			System.err.println("ERROR: Unknown state id of " + nextStateId);
 		}
@@ -52,7 +67,13 @@ public class StateManager
 		
 	}
 	
-	protected Scanner getScanner() {
+	private void update() {
+		if (didStateChange) {
+			activeState.run();
+		}
+	}
+	
+	public Scanner getScanner() {
 		return scanner;
 	}
 	
