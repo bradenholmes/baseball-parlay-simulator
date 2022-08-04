@@ -2,6 +2,8 @@ package com.bbsim;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.bbsim.ApiQuery.Game;
+
 public class SimulationData
 {
 	public class TeamData {
@@ -15,9 +17,6 @@ public class SimulationData
 			avgRuns = runs / simulations;
 		}
 		
-		public void print() {
-			System.out.println(team.getName().toUpperCase() + " ---  win rate: " + App.percentage(winPct) + "   avg runs: " + App.decimal(avgRuns));
-		}
 	}
 	
 	public class BatterData {
@@ -37,8 +36,13 @@ public class SimulationData
     		avgRuns = (float) b.getRuns() / simulations;
 		}
 		
-		public void print() {
-			System.out.println(StringUtils.leftPad(batter.getName(), 24) + "  Hits: " + App.decimal(avgHits) + "   Bases: " + App.decimal(avgBases) + "   Homers: " + App.decimal(avgHomers) + "   RBI: " + App.decimal(avgRBI) + "   Runs: " + App.decimal(avgRuns));
+		public String toString() {
+			return StringUtils.leftPad(batter.getName(), 15) 
+					+ "  Hits: " + App.decimal(avgHits) 
+					+ "   Bases: " + App.decimal(avgBases) 
+					+ "   Homers: " + App.decimal(avgHomers) 
+					+ "   RBI: " + App.decimal(avgRBI) 
+					+ "   Runs: " + App.decimal(avgRuns);
 		}
 	}
 	
@@ -51,11 +55,12 @@ public class SimulationData
 			avgKs = (float) p.getSOs() / simulations;
 		}
 		
-		public void print() {
-			System.out.println(StringUtils.leftPad(pitcher.getName(), 24) + "  Ks: " + App.decimal(avgKs));
+		public String toString() {
+			return StringUtils.leftPad(pitcher.getName(), 15) + "  Ks: " + App.decimal(avgKs);
 		}
 	}
 	
+	public Game simGame;
 	float simulations;
 	
 	public TeamData homeData;
@@ -67,7 +72,8 @@ public class SimulationData
 	public PitcherData homePitcherData;
 	public PitcherData awayPitcherData;
 	
-	public SimulationData(float simulations) {
+	public SimulationData(Game game, float simulations) {
+		this.simGame = game;
 		this.simulations = simulations;
 		homeBatterData = new BatterData[9];
 		awayBatterData = new BatterData[9];
@@ -106,16 +112,23 @@ public class SimulationData
 	}
 	
 	public void printSimulationData() {
-		System.out.println("      ---------  SIMULATION RESULTS  ---------");
-		System.out.println("                  ~~ HOME TEAM ~~");
-		homeData.print();
-		homePitcherData.print();
-		for (BatterData b : homeBatterData) b.print();
-		System.out.println();
-		System.out.println("                  ~~ AWAY TEAM ~~");
-		awayData.print();
-		awayPitcherData.print();
-		for (BatterData b : awayBatterData) b.print();
-		System.out.println("      ---------------------------------------");
+		System.out.println(App.TABLE_END_LINE);
+		System.out.println(App.centerText("SIMULATION  DATA", false, true));
+		System.out.println(App.TABLE_HORIZ_LINE);
+
+		System.out.println(App.centerText(awayData.team.getName().toUpperCase(), false, true));
+		System.out.println(App.centerText("win " + App.percentage(awayData.winPct) + " of games", false, true));
+		System.out.println(App.centerText("score " + App.decimal(awayData.avgRuns) + " runs", false, true));
+		System.out.println(App.leftJustifyText(awayPitcherData.toString(), 4, true));
+		System.out.println(App.TABLE_EMPTY_LINE);
+		for (BatterData b : awayBatterData) System.out.println(App.leftJustifyText(b.toString(), 4, true));
+		System.out.println(App.TABLE_EMPTY_LINE);
+		
+		System.out.println(App.centerText(homeData.team.getName().toUpperCase(), false, true));
+		System.out.println(App.centerText("win " + App.percentage(homeData.winPct) + " of games", false, true));
+		System.out.println(App.centerText("score " + App.decimal(homeData.avgRuns) + " runs", false, true));
+		System.out.println(App.leftJustifyText(homePitcherData.toString(), 4, true));
+		System.out.println(App.TABLE_EMPTY_LINE);
+		for (BatterData b : homeBatterData) System.out.println(App.leftJustifyText(b.toString(), 4, true));
 	}
 }

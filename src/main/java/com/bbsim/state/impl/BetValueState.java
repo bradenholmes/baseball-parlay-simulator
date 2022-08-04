@@ -2,6 +2,8 @@ package com.bbsim.state.impl;
 
 import com.bbsim.App;
 import com.bbsim.Bet;
+import com.bbsim.BetType;
+import com.bbsim.FirstInningBet;
 import com.bbsim.state.ScreenState;
 
 public class BetValueState extends ScreenState
@@ -22,6 +24,11 @@ public class BetValueState extends ScreenState
 		this.bet = (Bet)params[0];
 		
 		System.out.println("Set a value: ");
+		if (this.bet.getBetType() == BetType.FIRST_INNING) {
+			for (FirstInningBet b : FirstInningBet.values()) {
+				System.out.println(  b.ordinal() + ".) " + b);
+			}
+		}
 	}
 
 	@Override

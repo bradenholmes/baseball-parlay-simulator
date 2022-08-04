@@ -36,7 +36,10 @@ public class BetSubjectState extends ScreenState
 		}
 		this.simData = (SimulationData) params[0];
 		this.bet = (Bet) params[1];
-		if (this.bet.getBetClass() == BetClass.TEAM) {
+		if (this.bet.getBetClass() == BetClass.GAME) {
+			bet.setSubject(simData.homeData.team, simData.awayData.team);
+			this.changeState(App.BET_VALUE_STATE, bet);
+		} else if (this.bet.getBetClass() == BetClass.TEAM) {
 			System.out.println("For which team?");
 			System.out.println("  1.) " + simData.awayData.team.getName());
 			System.out.println("  2.) " + simData.homeData.team.getName());

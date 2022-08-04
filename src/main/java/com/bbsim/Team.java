@@ -1,19 +1,11 @@
 package com.bbsim;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.bbsim.ApiQuery.TeamLineup;
 import com.google.gson.JsonObject;
 
 
 public class Team
 {
-	private static final String HOME_PATH = "res/home.csv";
-	private static final String AWAY_PATH = "res/away.csv";
 	
 	private static final int MINIMUM_PAS = 50;
 	private static final int MINIMUM_STARTS = 3;
@@ -24,17 +16,7 @@ public class Team
 	private Batter[] batters;
 	
 	private int igScore;
-	
-	public Team(boolean homeTeam) {
-		batters = new Batter[9];
-		if (homeTeam) {
-			homeAway = StateVar.HOME;
-			loadFromFile(HOME_PATH);
-		} else {
-			homeAway = StateVar.AWAY;
-			loadFromFile(AWAY_PATH);
-		}
-	}
+	private int firstInningScore;
 	
 	public Team(StateVar homeAway, TeamLineup lineup) {
 		this.homeAway = homeAway;
@@ -51,8 +33,20 @@ public class Team
 		return igScore;
 	}
 	
+	public void addFirstInningRuns(int runs) {
+		this.firstInningScore += runs;
+	}
+	
+	public int getFirstInningRuns() {
+		return firstInningScore;
+	}
+	
 	public String getName() {
 		return name;
+	}
+	
+	public StateVar getHomeAway() {
+		return homeAway;
 	}
 	
 	public Pitcher getPitcher() {
@@ -73,6 +67,7 @@ public class Team
 	
 	public void endGame(boolean resetPlayerStats) {
 		this.igScore = 0;
+		this.firstInningScore = 0;
 		if (resetPlayerStats) {
 			pitcher.endGame();
 			for (Batter b : batters) {
@@ -81,66 +76,12 @@ public class Team
 		}
 	}
 	
-	private void loadFromFile(String filePath) {
-		
-		
-		
-	       BufferedReader br = null;
-	       try {	
-	           br = new BufferedReader(new FileReader(filePath));		
-	           
-	           int lineIndex = 0;
-	           int batterCount = 0;
-	           String contentLine = br.readLine();
-			   while (contentLine != null) {
-			      String[] fields = StringUtils.split(contentLine, ',');
-			      if (lineIndex == 0) {
-			    	  name = fields[0];
-			      } else if (lineIndex >= 2 && lineIndex <= 10) {
-			    	  Batter batter = new Batter(fields[0], homeAway);
-			    	  
-			    	  JsonObject battingStats = ApiQuery.query(ApiQuery.API_BATTING_ENDPOINT, "mlb", "2022", fields[1]);
-			    	  
-			    	  if (battingStats != null) {
-				    	  //batter.setBattingStats(battingStats.get("tpa").getAsInt(), battingStats.get("so").getAsInt(), battingStats.get("bb").getAsInt() + battingStats.get("hbp").getAsInt(), battingStats.get("ppa").getAsFloat());
-				    	  //batter.setHitOutcomes(battingStats.get("h").getAsInt(), battingStats.get("d").getAsInt(), battingStats.get("t").getAsInt(), battingStats.get("hr").getAsInt());
-				    	  batter.setStealingData(battingStats.get("sb").getAsInt(), battingStats.get("cs").getAsInt());
-				    	  batter.setOutData(battingStats.get("so").getAsInt(), battingStats.get("go").getAsInt(), battingStats.get("ao").getAsInt(), battingStats.get("gidp").getAsInt(), battingStats.get("gidp_opp").getAsInt());
-			    	  } else {
-			    		  batter.setEmptyData();
-			    	  }
-			    	  
-			    	  batters[batterCount] = batter;
-			    	  batterCount++;
-			      } else if (lineIndex == 12) {
-			    	  pitcher = new Pitcher(fields[0], homeAway);
-
-			    	  JsonObject pitchingStats = ApiQuery.query(ApiQuery.API_PITCHING_ENDPOINT, "mlb", "2022", fields[1]);
-			    	  
-			    	  if (pitchingStats != null) {
-			    	  
-			    		  pitcher.setGameStats(pitchingStats.get("gs").getAsFloat(), pitchingStats.get("ip").getAsFloat());
-			    		  pitcher.setBatterStats(pitchingStats.get("tbf").getAsFloat(), pitchingStats.get("h").getAsFloat(), pitchingStats.get("so").getAsFloat(), pitchingStats.get("bb").getAsFloat(), pitchingStats.get("hb").getAsFloat());
-			    	  } else {
-			    		  pitcher.setEmptyStats();
-			    	  }
-			      }
-			      
-			      contentLine = br.readLine();
-			      lineIndex++;
-			   }
-			   
-			   br.close();
-	       } catch (IOException ioe) {
-	    	   ioe.printStackTrace();
-	       }
-	}
 	
 	
 	private void loadFromLineup(TeamLineup lineup) {
 
 
-		pitcher = new Pitcher(lineup.pitcher.name, homeAway);
+		pitcher = new Pitcher(lineup.pitcher.name, lineup.pitcher.id, homeAway);
 		JsonObject pitchingStats = ApiQuery.query(ApiQuery.API_PITCHING_ENDPOINT, "mlb", "2022", lineup.pitcher.id);
 		StateVar handed = "R".equals(ApiQuery.query(ApiQuery.API_PLAYERINFO_ENDPOINT, "mlb", "2022", lineup.pitcher.id).get("throws").getAsString()) ? StateVar.RIGHTY : StateVar.LEFTY;
 		pitcher.setHandedness(handed);
@@ -158,7 +99,7 @@ public class Team
 
 
 		for (int i = 0; i < 9; i++) {
-			Batter batter = new Batter(lineup.batters[i].name, homeAway);
+			Batter batter = new Batter(lineup.batters[i].name, lineup.batters[i].id, homeAway);
 			JsonObject battingStats = ApiQuery.query(ApiQuery.API_BATTING_ENDPOINT, "mlb", "2022", lineup.batters[i].id);
 
 			if (battingStats != null && battingStats.get("tpa").getAsInt() > MINIMUM_PAS) {

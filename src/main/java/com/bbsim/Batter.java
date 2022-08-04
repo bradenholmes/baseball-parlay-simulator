@@ -19,8 +19,8 @@ public class Batter extends Player
 	private int igRuns = 0;
 	private int igHomers = 0;
 	
-	public Batter(String name, StateVar homeAway) {
-		super(name, homeAway);
+	public Batter(String name, String playerId, StateVar homeAway) {
+		super(name, playerId, homeAway);
 	}
 	
 	public void setBattingSplits(Map<BattingSplitType, BattingSplit> splits) {

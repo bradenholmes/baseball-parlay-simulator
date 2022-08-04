@@ -73,7 +73,8 @@ public class GameSimulation
 			} else {
 				
 				if (inning == 1) {
-					FirstInningStats.recordFirstInning(homeTeam.getRuns(), awayTeam.getRuns());
+					homeTeam.addFirstInningRuns(homeTeam.getRuns());
+					awayTeam.addFirstInningRuns(awayTeam.getRuns());
 				}
 				
 				topBottom = StateVar.TOP;

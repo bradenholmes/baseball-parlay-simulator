@@ -9,8 +9,8 @@ public class Pitcher extends Player
 	
 	private int igKs = 0;
 	
-	public Pitcher(String name, StateVar homeAway) {
-		super(name, homeAway);
+	public Pitcher(String name, String playerId, StateVar homeAway) {
+		super(name, playerId, homeAway);
 	}
 	
 	public void setHandedness(StateVar handed) {

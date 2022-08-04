@@ -65,13 +65,7 @@ public class BetTypeState extends ScreenState
 			int idx = Integer.parseInt(input);
 			if (idx >= 0 && idx < types.size()) {
 				Bet bet = new Bet(betClass, types.get(idx));
-				
-				if (betClass == BetClass.GAME) {
-					this.changeState(App.BET_VALUE_STATE, bet);
-				} else {
-					this.changeState(App.BET_SUBJECT_STATE, simData, bet);
-				}
-				
+				this.changeState(App.BET_SUBJECT_STATE, simData, bet);
 			}
 		} catch (Exception e) {
 			System.out.println("Unknown input!");

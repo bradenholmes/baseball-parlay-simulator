@@ -2,8 +2,6 @@ package com.bbsim;
 
 import java.util.List;
 
-import com.bbsim.ApiQuery.Game;
-import com.bbsim.ApiQuery.Lineups;
 import com.bbsim.state.StateManager;
 import com.bbsim.state.impl.BetClassState;
 import com.bbsim.state.impl.BetSubjectState;
@@ -11,7 +9,6 @@ import com.bbsim.state.impl.BetTypeState;
 import com.bbsim.state.impl.BetValueState;
 import com.bbsim.state.impl.GamePickerState;
 import com.bbsim.state.impl.MainState;
-import com.bbsim.state.impl.OtherState;
 import com.bbsim.state.impl.ParlayBuilderState;
 import com.bbsim.state.impl.SimulationState;
 
@@ -21,9 +18,13 @@ import com.bbsim.state.impl.SimulationState;
  */
 public class App 
 {
+	public static final int LINE_WIDTH = 90;
+	public static final String TABLE_END_LINE =   "------------------------------------------------------------------------------------------";
+	public static final String TABLE_HORIZ_LINE = "|----------------------------------------------------------------------------------------|";
+	public static final String TABLE_EMPTY_LINE = "|                                                                                        |";
+	
 	//Screen states
 	public static final String MAIN_STATE = "main_state";
-	public static final String OTHER_STATE = "other_state";
 	public static final String GAME_PICKER_STATE = "game_picker_state";
 	public static final String PARLAY_BUILDER_STATE = "parlay_builder_state";
 	public static final String BET_CLASS_STATE = "bet_class_state";
@@ -33,121 +34,14 @@ public class App
 	
 	//Function states
 	public static final String SIMULATION_STATE = "simulation_state";
-	
-	private static StateManager manager;
-	private static List<Parlay> parlays;
 
-    public static void main( String[] args )
-    {
-    	initialize();
-    	
-
-    	//clearConsole();
-    	
-    	
-    	
-    	
-    	
-    	/*
-    	Lineups lineups = ApiQuery.getLineups("662988");
-    	
-    	System.out.println("-------- TEAMS -------");
-    	Team homeTeam = new Team(StateVar.HOME, lineups.homeLineup);
-    	homeTeam.print();
-    	Team awayTeam = new Team(StateVar.AWAY, lineups.awayLineup);
-    	awayTeam.print();
-    	
-    	int homeWins = 0;
-    	int awayWins = 0;
-    	
-    	int totalHomeRuns = 0;
-    	int totalAwayRuns = 0;
-    	
-    	float simulations = 100000;
-    	for (int i = 0; i < simulations; i++) {
-            GameSimulation game = new GameSimulation(homeTeam, awayTeam);
-            
-            while(game.step(false)) {
-            	
-            }
-            
-            if (homeTeam.getRuns() > awayTeam.getRuns()) {
-            	homeWins++;
-            } else {
-            	awayWins++;
-            }
-            
-            totalHomeRuns += homeTeam.getRuns();
-            totalAwayRuns += awayTeam.getRuns();
-            
-            homeTeam.endGame(false);
-            awayTeam.endGame(false);
-    	}
-    	
-    	
-    	ParlayBuilder parlayBuilder = new ParlayBuilder(simulations);
-    	parlayBuilder.setHomeTeamData(homeTeam, homeWins, totalHomeRuns);
-    	parlayBuilder.setHomePitcher(homeTeam.getPitcher());
-    	parlayBuilder.setHomeBatters(homeTeam.getBatters());
-    	
-    	parlayBuilder.setAwayTeamData(awayTeam, awayWins, totalAwayRuns);
-    	parlayBuilder.setAwayPitcher(awayTeam.getPitcher());
-    	parlayBuilder.setAwayBatters(awayTeam.getBatters());
-    	
-    	parlayBuilder.printParlayBuilderData();
-    	System.out.println();
-    	
-    	
-    	Parlay basicParlay = parlayBuilder.build(ParlayLevel.BASIC);
-    	Parlay aggressiveParlay = parlayBuilder.build(ParlayLevel.AGGRESSIVE);
-    	Parlay conservativeParlay = parlayBuilder.build(ParlayLevel.CONSERVATIVE);
-
-    	for (int i = 0; i < simulations; i++) {
-            GameSimulation game = new GameSimulation(homeTeam, awayTeam);
-            
-            while(game.step(false)) {
-            	
-            }
-            
-            basicParlay.evaluate();
-            aggressiveParlay.evaluate();
-            conservativeParlay.evaluate();
-            
-            homeTeam.endGame(true);
-            awayTeam.endGame(true);
-    	}
-    	
-    	basicParlay.print();
-    	conservativeParlay.print();
-    	aggressiveParlay.print();
-    	
-    	Parlay prunedParlay = parlayBuilder.pruneParlay(aggressiveParlay, 0.53f);
-    	for (int i = 0; i < simulations; i++) {
-            GameSimulation game = new GameSimulation(homeTeam, awayTeam);
-            
-            while(game.step(false)) {
-            	
-            }
-            
-            prunedParlay.evaluate();
-            
-            homeTeam.endGame(true);
-            awayTeam.endGame(true);
-    	}
-    	
-    	prunedParlay.print();
-    	
-    	System.out.println();
-    	
-    	FirstInningStats.printFirstInningResults();
-    	*/
-
+    public static void main( String[] args ) {
+    	start();
     }
     
-    public static void initialize() {
+    public static void start() {
     	StateManager manager = new StateManager();
     	manager.addState(MAIN_STATE, new MainState());
-    	manager.addState(OTHER_STATE, new OtherState());
     	manager.addState(GAME_PICKER_STATE, new GamePickerState(ApiQuery.getAllGames()));
     	manager.addState(PARLAY_BUILDER_STATE, new ParlayBuilderState());
     	manager.addState(BET_CLASS_STATE, new BetClassState());
@@ -166,6 +60,94 @@ public class App
     
     public static String decimal(float val) {
     	return String.format("%.2f", val);
+    }
+    
+    public static String centerText(String text, boolean fillDashes, boolean tableWalls) {
+    	StringBuilder sb = new StringBuilder();
+    	int len = text.length();
+    	int space = LINE_WIDTH - len;
+    	int leftPad = space / 2;
+    	int rightPad = space - leftPad;
+    	
+    	leftPad--;
+    	rightPad--;
+    	
+    	String endChar;
+    	if (tableWalls) {
+    		endChar = "|";
+    	} else if (fillDashes) {
+    		endChar = "-";
+    	} else {
+    		endChar = " ";
+    	}
+    	
+    	String spaceChar;
+    	if (fillDashes) {
+    		spaceChar = "-";
+    	} else {
+    		spaceChar = " ";
+    	}
+    	
+    	sb.append(endChar);
+    	for (int i = 0; i < leftPad; i++) {
+    		sb.append(spaceChar);
+    	}
+    	sb.append(text);
+    	for (int i = 0; i < rightPad; i++) {
+    		sb.append(spaceChar);
+    	}
+    	sb.append(endChar);
+    	return sb.toString();
+    }
+    
+    public static String leftJustifyText(String text, int indentSize, boolean tableWalls) {
+    	StringBuilder sb = new StringBuilder();
+    	int len = text.length();
+    	int space = LINE_WIDTH - len - indentSize - 2;
+    	
+    	
+    	String endChar;
+    	if (tableWalls) {
+    		endChar = "|";
+    	} else {
+    		endChar = " ";
+    	}
+    	
+    	sb.append(endChar);
+    	for (int i = 0; i < indentSize; i++) {
+    		sb.append(" ");
+    	}
+    	sb.append(text);
+    	for (int i = 0; i < space; i++) {
+    		sb.append(" ");
+    	}
+    	sb.append(endChar);
+    	return sb.toString();
+    }
+    
+    public static String rightJustifyText(String text, int indentSize, boolean tableWalls) {
+    	StringBuilder sb = new StringBuilder();
+    	int len = text.length();
+    	int space = LINE_WIDTH - len - indentSize - 2;
+    	
+    	
+    	String endChar;
+    	if (tableWalls) {
+    		endChar = "|";
+    	} else {
+    		endChar = " ";
+    	}
+    	
+    	sb.append(endChar);
+    	for (int i = 0; i < space; i++) {
+    		sb.append(" ");
+    	}
+    	sb.append(text);
+    	for (int i = 0; i < indentSize; i++) {
+    		sb.append(" ");
+    	}
+    	sb.append(endChar);
+    	return sb.toString();
     }
     
     public static void clearConsole() {
