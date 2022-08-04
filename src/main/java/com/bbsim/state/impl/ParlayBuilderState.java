@@ -32,11 +32,16 @@ public class ParlayBuilderState extends ScreenState
 			if (parlay == null) {
 				parlay = new Parlay(simData.simGame);
 			} else {
-				List<Bet> prevBets = parlay.getBets();
-				parlay = new Parlay(simData.simGame);
-				for (Bet b : prevBets) {
-					parlay.addBet(b);
+				if (parlay.getGame().gameId == simData.simGame.gameId) {
+					List<Bet> prevBets = parlay.getBets();
+					parlay = new Parlay(simData.simGame);
+					for (Bet b : prevBets) {
+						parlay.addBet(b);
+					}
+				} else {
+					parlay = new Parlay(simData.simGame);
 				}
+
 			}
 
 		} else if (params[0] instanceof Bet) {

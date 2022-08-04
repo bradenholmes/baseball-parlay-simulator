@@ -1,7 +1,6 @@
 package com.bbsim.state.impl;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.lang.reflect.Type;
@@ -24,13 +23,14 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class MainState extends ScreenState
 {
-	private static final String saveFile = "res/parlays.json";
+	private static final String saveFile = "/Programming/GameWorkspace/BaseballSimulator/parlays.json";
 	
 	List<Parlay> parlays;
 	List<CurrentGameData> gameData;
 	Gson gson;
 	
 	public MainState() {
+		WebDriverManager.chromedriver().setup();
 		gson = new Gson();
 		parlays = new ArrayList<>();
 		gameData = new ArrayList<>();
@@ -117,7 +117,7 @@ public class MainState extends ScreenState
 	}
 	
 	private void updateAllGames() {
-		WebDriverManager.chromedriver().setup();
+		
 		ChromeOptions options = new ChromeOptions();
 		options.setHeadless(true);
 		WebDriver driver = new ChromeDriver(options);
