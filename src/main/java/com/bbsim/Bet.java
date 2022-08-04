@@ -214,14 +214,14 @@ public class Bet implements Comparable<Bet>
 					break;
 			}
 		}
-		sb.append(StringUtils.leftPad(namePart, 14));
+		sb.append(StringUtils.leftPad(namePart, 18));
 		sb.append(" ");
 		sb.append(StringUtils.rightPad(valuePart, 14));
 		if (expectedProbability != -1) {
 			sb.append(App.percentage(expectedProbability));
 		}
 		
-		System.out.println(App.leftJustifyText(sb.toString(), 5, true));
+		System.out.println(App.leftJustifyText(sb.toString(), 1, true));
 	}
 	
 	public void printStatus(CurrentGameData gameData) {
@@ -461,12 +461,12 @@ public class Bet implements Comparable<Bet>
 				valuePart = "";
 		}
 
-		sb.append(StringUtils.leftPad(namePart, 14));
+		sb.append(StringUtils.leftPad(namePart, 18));
 		sb.append(" ");
 		sb.append(StringUtils.rightPad(valuePart, 14));
 		sb.append(createCheckboxes(boxes));
 		
-		System.out.println(App.centerText(sb.toString(), false, true));
+		System.out.println(App.leftJustifyText(sb.toString(), 1, true));
 	}
 	
 	private void printStatusInactive() {
@@ -550,12 +550,12 @@ public class Bet implements Comparable<Bet>
 				valuePart = "";
 		}
 
-		sb.append(StringUtils.leftPad(namePart, 14));
+		sb.append(StringUtils.leftPad(namePart, 18));
 		sb.append(" ");
 		sb.append(StringUtils.rightPad(valuePart, 14));
 		sb.append(createCheckboxes(boxes));
 		
-		System.out.println(App.leftJustifyText(sb.toString(), 5, true));
+		System.out.println(App.leftJustifyText(sb.toString(), 1, true));
 	}
 
 	@Override

@@ -115,7 +115,7 @@ public class Parlay
 		for (Bet b : bets) {
 			b.printStatus(gameData);
 		}
-		System.out.println(App.centerText("Expected win rate: " + expectedWinRate, false, true));
+		System.out.println(App.centerText("Expected win rate: " + App.percentage(expectedWinRate), false, true));
 		System.out.println(App.TABLE_HORIZ_LINE);
 	}
 }

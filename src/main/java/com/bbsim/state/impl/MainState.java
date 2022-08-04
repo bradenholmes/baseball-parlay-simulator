@@ -117,7 +117,7 @@ public class MainState extends ScreenState
 	}
 	
 	private void updateAllGames() {
-		
+		this.clearConsole();
 		ChromeOptions options = new ChromeOptions();
 		options.setHeadless(true);
 		WebDriver driver = new ChromeDriver(options);
@@ -127,6 +127,7 @@ public class MainState extends ScreenState
 		}
 		
 		driver.close();
+		driver.quit();
 	}
 	
 	private void clearAllParlays() {

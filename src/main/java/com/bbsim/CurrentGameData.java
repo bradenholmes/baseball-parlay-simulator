@@ -144,7 +144,7 @@ public class CurrentGameData
 	public void update(WebDriver driver) {
 		try {
 			Wait<WebDriver> wait = new FluentWait<WebDriver>(driver)
-					.withTimeout(Duration.ofSeconds(10))
+					.withTimeout(Duration.ofSeconds(3))
 					.pollingEvery(Duration.ofMillis(500))
 					.ignoring(NoSuchElementException.class);
 
