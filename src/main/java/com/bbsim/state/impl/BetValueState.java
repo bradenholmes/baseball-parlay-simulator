@@ -26,7 +26,7 @@ public class BetValueState extends ScreenState
 		System.out.println("Set a value: ");
 		if (this.bet.getBetType() == BetType.FIRST_INNING) {
 			for (FirstInningBet b : FirstInningBet.values()) {
-				System.out.println(  b.ordinal() + ".) " + b);
+				System.out.println("  " + b.ordinal() + ".) " + b);
 			}
 		}
 	}

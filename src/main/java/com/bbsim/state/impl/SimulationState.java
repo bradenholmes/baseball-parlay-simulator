@@ -35,7 +35,7 @@ public class SimulationState extends FunctionState
 			this.parlay = null;
 		} else if (params.length == 3) {
 			if (!(params[0] instanceof SimulationData)) {
-				System.err.println("ERROR: First SimulationState argument must be a Game object");
+				System.err.println("ERROR: First SimulationState argument must be a SimulationData object");
 				return;
 			}
 			
@@ -111,6 +111,7 @@ public class SimulationState extends FunctionState
     	SimulationData data = new SimulationData(simGame, simulations);
     	data.setHomeTeamData(homeTeam, homeWins, totalHomeRuns);
     	data.setAwayTeamData(awayTeam, awayWins, totalAwayRuns);
+    	data.setFirstInningData(awayTeam, homeTeam);
     	
 		return new FunctionResult(App.PARLAY_BUILDER_STATE, data);
 	}

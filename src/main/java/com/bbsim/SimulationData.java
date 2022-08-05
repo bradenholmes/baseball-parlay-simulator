@@ -121,7 +121,7 @@ public class SimulationData
 				System.out.println(App.leftJustifyText(StringUtils.leftPad("0-0: ", 18) + App.percentage(zero_zero), 1, true));
 				System.out.println(App.leftJustifyText(StringUtils.leftPad(awayName + " win: ", 18) + App.percentage(away_win), 1, true));
 				System.out.println(App.leftJustifyText(StringUtils.leftPad("tie: ", 18) + App.percentage(tie), 1, true));
-				System.out.println(App.leftJustifyText(StringUtils.leftPad(homeName + "win: ", 18) + App.percentage(home_win), 1, true));
+				System.out.println(App.leftJustifyText(StringUtils.leftPad(homeName + " win: ", 18) + App.percentage(home_win), 1, true));
 			}
 		}
 	}

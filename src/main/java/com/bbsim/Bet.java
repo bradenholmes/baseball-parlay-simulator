@@ -175,7 +175,7 @@ public class Bet implements Comparable<Bet>
 		return result;
 	}
 	
-	public void print() {
+	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		String namePart;
 		String valuePart;
@@ -221,7 +221,11 @@ public class Bet implements Comparable<Bet>
 			sb.append(App.percentage(expectedProbability));
 		}
 		
-		System.out.println(App.leftJustifyText(sb.toString(), 1, true));
+		return sb.toString();
+	}
+	
+	public void print() {
+		System.out.println(App.leftJustifyText(toString(), 1, true));
 	}
 	
 	public void printStatus(CurrentGameData gameData) {

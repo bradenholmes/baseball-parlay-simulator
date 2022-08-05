@@ -84,4 +84,23 @@ public class StateManager
 			e.printStackTrace();
 		}
     }
+    
+    public int getIntegerInput(int min, int max) {
+    	int value = 0;
+    	boolean gotten = false;
+    	while(!gotten) {
+    		String in = scanner.nextLine();
+    		try {
+    			int v = Integer.parseInt(in);
+    			if (v >= min && v < max) {
+    				value = v;
+    				gotten = true;
+    			}
+    		} catch (Exception e) {
+    			System.out.println("Please enter an integer!");
+    		}
+    	}
+    	
+    	return value;
+    }
 }

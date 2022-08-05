@@ -107,6 +107,19 @@ public class ParlayBuilderState extends ScreenState
 				this.changeState(App.MAIN_STATE);
 			}
 			return;
+		} else if ("remove".equals(input)) {
+			this.clearConsole();
+			System.out.println("choose a bet to remove:");
+			for (int i = 0; i < parlay.getBets().size(); i++) {
+				Bet b = parlay.getBets().get(i);
+				System.out.println(StringUtils.leftPad("  " + i + ".) ", 8) + b.toString());
+			}
+			int choice = this.getManager().getIntegerInput(0, parlay.getBets().size());
+			Bet removeBet = parlay.getBets().get(choice);
+			parlay.removeBet(removeBet);
+			
+			return;
+			
 		} else if ("simulate".equals(input)) {
 			parlay.resetEvaluation();
 			this.changeState(App.SIMULATION_STATE, parlay.getGame());

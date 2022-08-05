@@ -34,6 +34,12 @@ public class Parlay
 		resetEvaluation();
 	}
 	
+	public void removeBet(Bet bet) {
+		bets.remove(bet);
+		betWins.remove(bet);
+		resetEvaluation();
+	}
+	
 	public void initialize() {
 		betWins = new HashMap<>();
 		for (Bet b : bets) {
