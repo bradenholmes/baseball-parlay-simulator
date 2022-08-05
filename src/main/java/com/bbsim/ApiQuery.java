@@ -107,6 +107,10 @@ public class ApiQuery
 			this.triples = triples;
 			this.homers = homers;
 			
+			calculate();
+		}
+		
+		private void calculate() {
 			this.singles = hits - doubles - triples - homers;
 			this.kChance = (float) ks / (float) pas;
 			this.bbChance = (float) bbs / (float) pas;
@@ -118,6 +122,17 @@ public class ApiQuery
 		
 		public void print() {
 			System.out.println("    " + type + " split ---   PAs: " + pas + "   Ks: " + ks + "   BBs: " + bbs + "   Hits: " + hits + "   2B: " + doubles + "   3B: " + triples + "   HR: " + homers);
+		}
+		
+		public void addOtherSplit(BattingSplit o) {
+			this.pas += o.pas;
+			this.ks += o.ks;
+			this.bbs += o.bbs;
+			this.hits += o.hits;
+			this.doubles += o.doubles;
+			this.triples += o.triples;
+			this.homers += o.homers;
+			calculate();
 		}
 	}
 	
@@ -329,21 +344,40 @@ public class ApiQuery
 	
 	
 	private static BattingSplit extractSplit(BattingSplitType type, Document doc) {
-		Elements splitElems = doc.getElementById(type.getRowId()).children();
-		BattingSplit split = new BattingSplit(type, 
-				pullStat(splitElems.get(BattingSplitType.PLATE_APP_IDX)), 
-				pullStat(splitElems.get(BattingSplitType.STRIKE_OUT_IDX)), 
-				pullStat(splitElems.get(BattingSplitType.WALK_IDX)), 
-				pullStat(splitElems.get(BattingSplitType.HITS_IDX)), 
-				pullStat(splitElems.get(BattingSplitType.DOUBLES_IDX)), 
-				pullStat(splitElems.get(BattingSplitType.TRIPLES_IDX)), 
-				pullStat(splitElems.get(BattingSplitType.HOMERS_IDX)));
+		Elements tableRows = doc.getElementById(type.getTableId()).getElementsByTag("tr");
+		
+		Iterator<Element> rowIt = tableRows.iterator();
+		rowIt.next();
+		Elements relevantRows = new Elements();
+		while(rowIt.hasNext()) {
+			Element row = rowIt.next();
+			Elements vals = row.getElementsByTag("td");
+			if (type.getRowSpecifier().equals(vals.get(BattingSplitType.ROW_SPECIFIER_IDX).text())) {
+				relevantRows.add(row);
+			}
+		}
+		BattingSplit split = new BattingSplit(type, 0, 0, 0, 0, 0, 0, 0);
+		rowIt = relevantRows.iterator();
+		while(rowIt.hasNext()) {
+			Element row = rowIt.next();
+			Elements vals = row.getElementsByTag("td");
+			BattingSplit rowSplit = new BattingSplit(type, 
+					pullStat(vals, BattingSplitType.PLATE_APP_IDX),
+					pullStat(vals, BattingSplitType.STRIKE_OUT_IDX),
+					pullStat(vals, BattingSplitType.WALK_IDX),
+					pullStat(vals, BattingSplitType.HITS_IDX),
+					pullStat(vals, BattingSplitType.DOUBLES_IDX),
+					pullStat(vals, BattingSplitType.TRIPLES_IDX),
+					pullStat(vals, BattingSplitType.HOMERS_IDX));
+			
+			split.addOtherSplit(rowSplit);
+		}
 		
 		return split;
 	}
 	
 	
-	private static int pullStat(Element element) {
-		return Integer.parseInt(element.firstElementChild().text());
+	private static int pullStat(Elements vals, int index) {
+		return Integer.parseInt(vals.get(index).text());
 	}
 }

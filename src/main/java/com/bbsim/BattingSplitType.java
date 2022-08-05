@@ -2,13 +2,13 @@ package com.bbsim;
 
 public enum BattingSplitType
 {
-	LHP("mlb_platoonSplits-tr_0"), 
-	RHP("mlb_platoonSplits-tr_1"), 
-	HOME("mlb_typeSplits-tr_0"), 
-	AWAY("mlb_typeSplits-tr_1");
+	LHP("date-platoon-mlb", "vs Left"), 
+	RHP("date-platoon-mlb", "vs Right"), 
+	HOME("type-splits-mlb", "Home Games"), 
+	AWAY("type-splits-mlb", "Away Games");
 	
-	final String tableRowId;
-	
+
+	public static final int ROW_SPECIFIER_IDX = 2;
 	public static final int PLATE_APP_IDX = 3;
 	public static final int STRIKE_OUT_IDX = 12;
 	public static final int WALK_IDX = 11;
@@ -18,11 +18,19 @@ public enum BattingSplitType
 	public static final int HOMERS_IDX = 9;
 	
 	
-	BattingSplitType(String rowId) {
-		this.tableRowId = rowId;
+	final String tableId;
+	final String rowSpecifier;
+	
+	BattingSplitType(String tableId, String rowSpecifier) {
+		this.tableId = tableId;
+		this.rowSpecifier = rowSpecifier;
 	}
 	
-	public String getRowId() {
-		return tableRowId;
+	public String getTableId() {
+		return tableId;
+	}
+	
+	public String getRowSpecifier() {
+		return rowSpecifier;
 	}
 }

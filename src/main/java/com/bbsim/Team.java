@@ -2,7 +2,10 @@ package com.bbsim;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 
+import com.bbsim.ApiQuery.BattingSplit;
 import com.bbsim.ApiQuery.TeamLineup;
 import com.google.gson.JsonObject;
 
@@ -113,9 +116,9 @@ public class Team
 
 		for (int i = 0; i < 9; i++) {
 			Batter batter = new Batter(lineup.batters[i].name, lineup.batters[i].id, homeAway);
+			batter.setBattingSplits(ApiQuery.getBattingSplits(lineup.batters[i].fullId));
 			JsonObject battingStats = ApiQuery.query(ApiQuery.API_BATTING_ENDPOINT, "mlb", "2022", lineup.batters[i].id);
-
-			if (battingStats != null && battingStats.get("tpa").getAsInt() > MINIMUM_PAS) {
+			if (battingStats != null && batter.getTotalPAs() > MINIMUM_PAS) {
 				batter.setBattingSplits(ApiQuery.getBattingSplits(lineup.batters[i].fullId));
 				batter.setStealingData(battingStats.get("sb").getAsInt(), battingStats.get("cs").getAsInt());
 				batter.setOutData(battingStats.get("so").getAsInt(), battingStats.get("go").getAsInt(), battingStats.get("ao").getAsInt(), battingStats.get("gidp").getAsInt(), battingStats.get("gidp_opp").getAsInt());
@@ -128,6 +131,7 @@ public class Team
 				
 				batter.setEmptyData();
 			}
+
 			batters[i] = batter;
 		}
 

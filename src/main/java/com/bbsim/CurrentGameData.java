@@ -39,7 +39,7 @@ public class CurrentGameData
 			if ("FINAL".equals(this.liveStatus)) {
 				this.currentInning = 9;
 			} else {
-				
+				this.currentInning = Integer.parseInt(StringUtils.right(this.liveStatus, 1));
 			}
 		}
 	}
@@ -95,6 +95,7 @@ public class CurrentGameData
 	private static final String AWAY_SCORE = "away-score_";
 	private static final String HOME_SCORE = "home-score_";
 	private static final String BOX_SCORE = "boxScoreTable_";
+	private static final String LINE_SCORE = "lineScore_";
 	
 	public Game game;
 	
@@ -166,13 +167,16 @@ public class CurrentGameData
 					elements.add(driver.findElement(By.id(AWAY_SCORE + game.gameId)));
 					elements.add(driver.findElement(By.id(HOME_SCORE + game.gameId)));
 					elements.add(driver.findElement(By.id(BOX_SCORE + game.gameId)));
+					elements.add(driver.findElement(By.id(LINE_SCORE + game.gameId)));
 					return elements;
 				}
 			});
 			
 			isGameLive = true;
 			
-			gameStats.set(elems.get(0).getText(), elems.get(1).getText(), elems.get(2).getText(), "0", "0");
+			String[] firstInningScores = extractFirstInningScore(elems.get(4));
+			
+			gameStats.set(elems.get(0).getText(), elems.get(1).getText(), elems.get(2).getText(), firstInningScores[0], firstInningScores[1]);
 
 			Document doc = Jsoup.parse(elems.get(3).getAttribute("innerHTML"));
 			Elements tables = doc.getElementsByClass("table-savant");
@@ -244,5 +248,20 @@ public class CurrentGameData
 			
 			index++;
 		}
+	}
+	
+	private String[] extractFirstInningScore(WebElement element) {
+		Document doc = Jsoup.parse(element.getAttribute("innerHTML"));
+		Elements rows = doc.getElementsByTag("tr");
+		Element awayRow = rows.get(1);
+		Element homeRow = rows.get(2);
+		Elements awayScores = awayRow.getElementsByTag("td");
+		Elements homeScores = homeRow.getElementsByTag("td");
+		
+		String[] runs = new String[2];
+		runs[0] = awayScores.get(1).text();
+		runs[1] = homeScores.get(1).text();
+		
+		return runs;
 	}
 }

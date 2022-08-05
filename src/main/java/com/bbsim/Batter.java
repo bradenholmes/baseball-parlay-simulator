@@ -122,6 +122,10 @@ public class Batter extends Player
 		}
 	}
 	
+	public int getTotalPAs() {
+		return splits.get(BattingSplitType.HOME).pas + splits.get(BattingSplitType.AWAY).pas;
+	}
+	
 	public void addHit() {
 		igHits++;
 	}
