@@ -1,5 +1,8 @@
 package com.bbsim;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.bbsim.ApiQuery.TeamLineup;
 import com.google.gson.JsonObject;
 
@@ -18,10 +21,13 @@ public class Team
 	transient private int igScore;
 	transient private int firstInningScore;
 	
+	transient private List<Integer> firstInningScores;
+	
 	public Team(StateVar homeAway, TeamLineup lineup) {
 		this.homeAway = homeAway;
 		batters = new Batter[9];
 		this.name = lineup.teamName;
+		firstInningScores = new ArrayList<>();
 		loadFromLineup(lineup);
 	}
 	
@@ -65,15 +71,22 @@ public class Team
 		return batters;
 	}
 	
+	public List<Integer> getFirstInningScores(){
+		return firstInningScores;
+	}
+	
 	public void endGame(boolean resetPlayerStats) {
 		this.igScore = 0;
-		this.firstInningScore = 0;
 		if (resetPlayerStats) {
+			firstInningScores.clear();
 			pitcher.endGame();
 			for (Batter b : batters) {
 				b.endGame();
 			}
+		} else {
+			firstInningScores.add(firstInningScore);
 		}
+		this.firstInningScore = 0;
 	}
 	
 	

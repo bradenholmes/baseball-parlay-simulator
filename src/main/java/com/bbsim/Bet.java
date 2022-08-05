@@ -202,7 +202,7 @@ public class Bet implements Comparable<Bet>
 					break;
 				case FIRST_INNING:
 					namePart = "First inning";
-					valuePart = "" + FirstInningBet.ofOridinal((int)value);
+					valuePart = createFirstInningValPart();
 					break;
 				case SO_OVER:
 					namePart = pitcher.getName();
@@ -240,221 +240,81 @@ public class Bet implements Comparable<Bet>
 		char[] boxes = null;
 		PitcherStats pDat;
 		BatterStats bDat;
-		
-		int favRuns = 0;
-		int udRuns = 0;
-		if (favorite != null && underdog != null) {
-			favRuns = favorite.getHomeAway() == StateVar.HOME ? gameData.gameStats.homeScore : gameData.gameStats.awayScore;
-			udRuns = underdog.getHomeAway() == StateVar.HOME ? gameData.gameStats.homeScore : gameData.gameStats.awayScore;
-		}
 
 		switch (type) {
 			case MONEY_LINE:
 				namePart = favorite.getName();
 				valuePart = "win";
-				boxes = new char[1];
-				if ("FINAL".equals(gameData.gameStats.liveStatus)) {
-					if (favRuns > udRuns) {
-						boxes[0] = CHECK;
-					} else {
-						boxes[0] = FAIL;
-					}
-				} else {
-					if (favRuns > udRuns) {
-						boxes[0] = WINNING_NOW;
-					} else {
-						boxes[0] = LOSING_NOW;
-					}
-				}
-				
+				boxes = fillGameBoxes(type, gameData);
 				break;
 			case RUN_LINE:
 				namePart = favorite.getName();
 				valuePart = (value > 0 ? "+" : "") + value;
-				boxes = new char[1];
-				if ("FINAL".equals(gameData.gameStats.liveStatus)) {
-					if (favRuns + value > udRuns) {
-						boxes[0] = CHECK;
-					} else {
-						boxes[0] = FAIL;
-					}
-				} else {
-					if (favRuns + value > udRuns) {
-						boxes[0] = WINNING_NOW;
-					} else {
-						boxes[0] = LOSING_NOW;
-					}
-				}
+				boxes = fillGameBoxes(type, gameData);
 				break;
 			case RUNS_OVER:
 				namePart = "Over";
 				valuePart = value + " runs";
-				boxes = new char[1];
-				if (gameData.gameStats.awayScore + gameData.gameStats.homeScore > value) {
-					boxes[0] = CHECK;
-				} else {
-					if ("FINAL".equals(gameData.gameStats.liveStatus)) {
-						boxes[0] = FAIL;
-					} else {
-						boxes[0] = LOSING_NOW;
-					}
-				}
+				boxes = fillGameBoxes(type, gameData);
 				break;
 			case RUNS_UNDER:
 				namePart = "Under";
 				valuePart = value + " runs";
-				boxes = new char[1];
-				if (gameData.gameStats.awayScore + gameData.gameStats.homeScore > value) {
-					boxes[0] = FAIL;
-				} else {
-					if ("FINAL".equals(gameData.gameStats.liveStatus)) {
-						boxes[0] = CHECK;
-					} else {
-						boxes[0] = WINNING_NOW;
-					}
-				}
+				boxes = fillGameBoxes(type, gameData);
 				break;
 			case FIRST_INNING:
 				namePart = "First inning";
-				valuePart = "" + FirstInningBet.ofOridinal((int)value);
+				valuePart =  createFirstInningValPart();
+				boxes = new char[1];
+				boxes[0] = evaluateFirstInning(gameData);
 				break;
 			case SO_OVER:
 				namePart = pitcher.getName();
 				valuePart = (int) value + "+ SO's";
-				boxes = new char[(int) value];
 				pDat = gameData.getPitcherOfId(pitcher.getPlayerId());
-				for (int i = 0; i < boxes.length; i++) {
-					if (i < pDat.strikeouts) {
-						boxes[i] = CHECK;
-					} else {
-						if (pDat.stillPlaying) {
-							boxes[i] = EMPTY;
-						} else {
-							boxes[i] = FAIL;
-						}
-						
-					}
-				}
-				
+				boxes = fillBoxes((int) value, pDat.strikeouts, pDat.stillPlaying);
 				break;
 			case ONE_HIT:
 				namePart = batter.getName();
 				valuePart = "" + type;
 				bDat = gameData.getBatterOfId(batter.getPlayerId());
-				boxes = new char[1];
-				if (bDat.hits >= 1) {
-					boxes[0] = CHECK;
-				} else {
-					if (bDat.stillPlaying) {
-						boxes[0] = EMPTY;
-					} else {
-						boxes[0] = FAIL;
-					}
-				}
+				boxes = fillBoxes(1, bDat.hits, bDat.stillPlaying);
 				break;
 			case TWO_HIT:
 				namePart = batter.getName();
 				valuePart = "" + type;
 				bDat = gameData.getBatterOfId(batter.getPlayerId());
-				boxes = new char[2];
-				char nohit = bDat.stillPlaying ? EMPTY : FAIL;
-				if (bDat.hits >= 2) {
-					boxes[0] = CHECK;
-					boxes[1] = CHECK;
-				} else if (bDat.hits == 1) {
-					boxes[0] = CHECK;
-					boxes[1] = nohit;
-				} else {
-					boxes[0] = nohit;
-					boxes[1] = nohit;
-				}
+				boxes = fillBoxes(2, bDat.hits, bDat.stillPlaying);
 				break;
 			case TWO_BASES:
 				namePart = batter.getName();
 				valuePart = "" + type;
 				bDat = gameData.getBatterOfId(batter.getPlayerId());
-				boxes = new char[2];
-				char nobase = bDat.stillPlaying ? EMPTY : FAIL;
-				if (bDat.totalBases >= 2) {
-					boxes[0] = CHECK;
-					boxes[1] = CHECK;
-				} else if (bDat.totalBases == 1) {
-					boxes[0] = CHECK;
-					boxes[1] = nobase;
-				} else {
-					boxes[0] = nobase;
-					boxes[1] = nobase;
-				}
+				boxes = fillBoxes(2, bDat.totalBases, bDat.stillPlaying);
 				break;
 			case THREE_BASES:
 				namePart = batter.getName();
 				valuePart = "" + type;
 				bDat = gameData.getBatterOfId(batter.getPlayerId());
-				boxes = new char[3];
-				char no = bDat.stillPlaying ? EMPTY : FAIL;
-				if (bDat.totalBases >= 3) {
-					boxes[0] = CHECK;
-					boxes[1] = CHECK;
-					boxes[2] = CHECK;
-				} else if (bDat.totalBases == 2) {
-					boxes[0] = CHECK;
-					boxes[1] = CHECK;
-					boxes[2] = no;
-				} else if (bDat.totalBases == 1) {
-					boxes[0] = CHECK;
-					boxes[1] = no;
-					boxes[2] = no;
-				} else {
-					boxes[0] = no;
-					boxes[1] = no;
-					boxes[2] = no;
-				}
-
+				boxes = fillBoxes(3, bDat.totalBases, bDat.stillPlaying);
 				break;
 			case HOME_RUN:
 				namePart = batter.getName();
 				valuePart = "" + type;
 				bDat = gameData.getBatterOfId(batter.getPlayerId());
-				boxes = new char[1];
-				if (bDat.homers >= 1) {
-					boxes[0] = CHECK;
-				} else {
-					if (bDat.stillPlaying) {
-						boxes[0] = EMPTY;
-					} else {
-						boxes[0] = FAIL;
-					}
-				}
+				boxes = fillBoxes(1, bDat.homers, bDat.stillPlaying);
 				break;
 			case RBI:
 				namePart = batter.getName();
 				valuePart = "" + type;
 				bDat = gameData.getBatterOfId(batter.getPlayerId());
-				boxes = new char[1];
-				if (bDat.rbi >= 1) {
-					boxes[0] = CHECK;
-				} else {
-					if (bDat.stillPlaying) {
-						boxes[0] = EMPTY;
-					} else {
-						boxes[0] = FAIL;
-					}
-				}
+				boxes = fillBoxes(1, bDat.rbi, bDat.stillPlaying);
 				break;
 			case RUN:
 				namePart = batter.getName();
 				valuePart = "" + type;
 				bDat = gameData.getBatterOfId(batter.getPlayerId());
-				boxes = new char[1];
-				if (bDat.runs >= 1) {
-					boxes[0] = CHECK;
-				} else {
-					if (bDat.stillPlaying) {
-						boxes[0] = EMPTY;
-					} else {
-						boxes[0] = FAIL;
-					}
-				}
+				boxes = fillBoxes(1, bDat.runs, bDat.stillPlaying);
 				break;
 			default:
 				namePart = "";
@@ -500,7 +360,7 @@ public class Bet implements Comparable<Bet>
 				break;
 			case FIRST_INNING:
 				namePart = "First inning";
-				valuePart = "" + FirstInningBet.ofOridinal((int)value);
+				valuePart = createFirstInningValPart();
 				boxes = emptyBoxes(1);
 				break;
 			case SO_OVER:
@@ -584,6 +444,160 @@ public class Bet implements Comparable<Bet>
 			boxes[i] = EMPTY;
 		}
 		return boxes;
+	}
+	
+	private char[] fillGameBoxes(BetType type, CurrentGameData gameData) {
+		char[] boxes = new char[1];
+		
+		int favRuns = 0;
+		int udRuns = 0;
+		if (favorite != null && underdog != null) {
+			favRuns = favorite.getHomeAway() == StateVar.HOME ? gameData.gameStats.homeScore : gameData.gameStats.awayScore;
+			udRuns = underdog.getHomeAway() == StateVar.HOME ? gameData.gameStats.homeScore : gameData.gameStats.awayScore;
+		}
+		
+		char winningChar;
+		char losingChar;
+		if ("FINAL".equals(gameData.gameStats.liveStatus)) {
+			winningChar = CHECK;
+			losingChar = FAIL;
+		} else {
+			winningChar = WINNING_NOW;
+			losingChar = LOSING_NOW;
+		}
+		
+		char result;
+		switch (type) {
+			case MONEY_LINE:
+				if (favRuns > udRuns) {
+					result = winningChar;
+				} else {
+					result = losingChar;
+				}
+				break;
+			case RUN_LINE:
+				if (favRuns + value > udRuns) {
+					result = winningChar;
+				} else {
+					result = losingChar;
+				}
+				break;
+			case RUNS_OVER:
+				if (favRuns + udRuns > value) {
+					result = CHECK;
+				} else {
+					result = losingChar;
+				}
+				break;
+			case RUNS_UNDER:
+				if (favRuns + udRuns > value) {
+					result = FAIL;
+				} else {
+					result = winningChar;
+				}
+				break;
+			default:
+				result = EMPTY;
+		}
+		
+		boxes[0] = result;
+		return boxes;
+	}
+	
+	private char[] fillBoxes(int numBoxes, int numChecks, boolean stillPlaying) {
+		char[] boxes = new char[numBoxes];
+		for (int i = 0; i < numBoxes; i++) {
+			if (stillPlaying) {
+				boxes[i] = EMPTY;
+			} else {
+				boxes[i] = FAIL;
+			}
+		}
+		
+		if (numChecks > numBoxes) numChecks = numBoxes;
+		for (int i = 0; i < numChecks; i++) {
+			boxes[i] = CHECK;
+		}
+		
+		return boxes;
+		
+	}
+	
+	private String createFirstInningValPart() {
+		FirstInningBet fib = FirstInningBet.ofOridinal((int) value);
+		String homeName = favorite.getHomeAway() == StateVar.HOME ? favorite.getName() : underdog.getName();
+		String awayName = underdog.getHomeAway() == StateVar.HOME ? underdog.getName() : favorite.getName();
+		
+		String valuePart;
+
+		switch (fib) {
+			case ZERO_ZERO:
+				valuePart = "0-0";
+				break;
+			case AWAY_WIN:
+				valuePart = awayName + " win";
+				break;
+			case TIE:
+				valuePart = "tie";
+				break;
+			case HOME_WIN:
+				valuePart = homeName + " win";
+				break;
+			default:
+				valuePart = "";
+		}
+		
+		return valuePart;
+	}
+	
+	private char evaluateFirstInning(CurrentGameData gameData) {
+		FirstInningBet fib = FirstInningBet.ofOridinal((int) value);
+
+		char winningChar;
+		char losingChar;
+		if (gameData.gameStats.currentInning > 1) {
+			winningChar = CHECK;
+			losingChar = FAIL;
+		} else {
+			winningChar = WINNING_NOW;
+			losingChar = LOSING_NOW;
+		}
+		
+		char result;
+		switch (fib) {
+			case ZERO_ZERO:
+				if (gameData.gameStats.homeFirstScore == 0 && gameData.gameStats.awayFirstScore == 0) {
+					result = winningChar;
+				} else {
+					result = FAIL;
+				}
+				break;
+			case AWAY_WIN:
+				if (gameData.gameStats.homeFirstScore < gameData.gameStats.awayFirstScore) {
+					result = winningChar;
+				} else {
+					result = losingChar;
+				}
+				break;
+			case TIE:
+				if (gameData.gameStats.homeFirstScore == gameData.gameStats.awayFirstScore) {
+					result = winningChar;
+				} else {
+					result = losingChar;
+				}
+				break;
+			case HOME_WIN:
+				if (gameData.gameStats.homeFirstScore > gameData.gameStats.awayFirstScore) {
+					result = winningChar;
+				} else {
+					result = losingChar;
+				}
+				break;
+			default:
+				result = ' ';
+		}
+		
+		return result;
 	}
 	
 	

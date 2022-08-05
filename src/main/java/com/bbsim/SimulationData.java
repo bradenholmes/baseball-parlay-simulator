@@ -1,5 +1,7 @@
 package com.bbsim;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.bbsim.ApiQuery.Game;
@@ -60,6 +62,70 @@ public class SimulationData
 		}
 	}
 	
+	public class FirstInningData {
+		boolean printError;
+		
+		String awayName;
+		String homeName;
+		
+		float zero_zero;
+		float away_win;
+		float tie;
+		float home_win;
+		
+		public FirstInningData(Team home, Team away, float simulations) {
+			awayName = away.getName();
+			homeName = home.getName();
+			List<Integer> awayFirst = away.getFirstInningScores();
+			List<Integer> homeFirst = home.getFirstInningScores();
+			
+			if (awayFirst.size() == simulations && homeFirst.size() == simulations) {
+				printError = false;
+				
+				int zzCount = 0;
+				int awayCount = 0;
+				int tieCount = 0;
+				int homeCount = 0;
+				
+				for (int i = 0; i < simulations; i++) {
+					int a = awayFirst.get(i);
+					int h = homeFirst.get(i);
+					
+					if (a == 0 && h == 0) {
+						zzCount++;
+					}
+
+					if (a == h) {
+						tieCount++;
+					} else if (a > h) {
+						awayCount++;
+					} else if (h > a) {
+						homeCount++;
+					}
+				}
+				
+				zero_zero = zzCount / simulations;
+				away_win = awayCount / simulations;
+				tie = tieCount / simulations;
+				home_win = homeCount / simulations;
+			} else {
+				printError = true;
+			}
+		}
+		
+		public void print() {
+			if (printError) {
+				System.err.println("ERROR: There was a problem counting first inning results!");
+			} else {
+				System.out.println(App.centerText("First Inning Results", false, true));
+				System.out.println(App.leftJustifyText(StringUtils.leftPad("0-0: ", 18) + App.percentage(zero_zero), 1, true));
+				System.out.println(App.leftJustifyText(StringUtils.leftPad(awayName + " win: ", 18) + App.percentage(away_win), 1, true));
+				System.out.println(App.leftJustifyText(StringUtils.leftPad("tie: ", 18) + App.percentage(tie), 1, true));
+				System.out.println(App.leftJustifyText(StringUtils.leftPad(homeName + "win: ", 18) + App.percentage(home_win), 1, true));
+			}
+		}
+	}
+	
 	public Game simGame;
 	float simulations;
 	
@@ -71,6 +137,8 @@ public class SimulationData
 	
 	public PitcherData homePitcherData;
 	public PitcherData awayPitcherData;
+	
+	public FirstInningData firstInningData;
 	
 	public SimulationData(Game game, float simulations) {
 		this.simGame = game;
@@ -89,6 +157,10 @@ public class SimulationData
 		awayData = new TeamData(team, wins, runs, simulations);
 		setAwayBatters(team.getBatters());
 		setAwayPitcher(team.getPitcher());
+	}
+	
+	public void setFirstInningData(Team awayTeam, Team homeTeam) {
+		firstInningData = new FirstInningData(awayTeam, homeTeam, simulations);
 	}
 	
 	private void setHomeBatters(Batter[] batters) {
@@ -130,5 +202,8 @@ public class SimulationData
 		System.out.println(App.leftJustifyText(homePitcherData.toString(), 4, true));
 		System.out.println(App.TABLE_EMPTY_LINE);
 		for (BatterData b : homeBatterData) System.out.println(App.leftJustifyText(b.toString(), 4, true));
+		
+		System.out.println(App.TABLE_EMPTY_LINE);
+		firstInningData.print();
 	}
 }

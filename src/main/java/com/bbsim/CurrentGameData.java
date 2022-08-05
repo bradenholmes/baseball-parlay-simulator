@@ -12,7 +12,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
-import org.openqa.selenium.ElementNotVisibleException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -26,11 +25,22 @@ public class CurrentGameData
 		public String liveStatus;
 		public int awayScore;
 		public int homeScore;
+		public int awayFirstScore;
+		public int homeFirstScore;
+		public int currentInning;
 		
-		private void set(String liveStatus, String awayScore, String homeScore) {
+		private void set(String liveStatus, String awayScore, String homeScore, String awayFirstScore, String homeFirstScore) {
 			this.liveStatus = liveStatus;
 			this.awayScore = Integer.parseInt(awayScore);
 			this.homeScore = Integer.parseInt(homeScore);
+			this.awayFirstScore = Integer.parseInt(awayFirstScore);
+			this.homeFirstScore = Integer.parseInt(homeFirstScore);
+			
+			if ("FINAL".equals(this.liveStatus)) {
+				this.currentInning = 9;
+			} else {
+				
+			}
 		}
 	}
 	
@@ -162,7 +172,7 @@ public class CurrentGameData
 			
 			isGameLive = true;
 			
-			gameStats.set(elems.get(0).getText(), elems.get(1).getText(), elems.get(2).getText());
+			gameStats.set(elems.get(0).getText(), elems.get(1).getText(), elems.get(2).getText(), "0", "0");
 
 			Document doc = Jsoup.parse(elems.get(3).getAttribute("innerHTML"));
 			Elements tables = doc.getElementsByClass("table-savant");
