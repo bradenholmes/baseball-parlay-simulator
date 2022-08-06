@@ -103,6 +103,12 @@ public class MainState extends ScreenState
 				clearAllParlays();
 			}
 			return;
+		} else if ("clearLost".equals(input)) {
+			System.out.println("Are you sure you want to remove lost parlays? (y/n)");
+			String answer = this.getManager().getScanner().nextLine();
+			if ("y".equals(answer)) {
+				clearLostParlays();
+			}
 		} else if ("edit".equals(input)) {
 			this.changeState(App.PARLAY_PICKER_STATE, parlays);
 			return;
@@ -133,6 +139,27 @@ public class MainState extends ScreenState
 	private void clearAllParlays() {
 		parlays.clear();
 		gameData.clear();
+		saveParlaysToFile();
+	}
+	
+	private void clearLostParlays() {
+		List<Parlay> toDelete = new ArrayList<>();
+		List<CurrentGameData> cgdToDelete = new ArrayList<>();
+		for (int i = 0; i < parlays.size(); i++) {
+			if (parlays.get(i).isDead()) {
+				toDelete.add(parlays.get(i));
+				cgdToDelete.add(gameData.get(i));
+				System.out.println("would delete: " + i);
+			}
+		}
+		
+		for (Parlay p : toDelete) {
+			parlays.remove(p);
+		}
+		for (CurrentGameData cgd : cgdToDelete) {
+			gameData.remove(cgd);
+		}
+		
 		saveParlaysToFile();
 	}
 	

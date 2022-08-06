@@ -228,15 +228,16 @@ public class Bet implements Comparable<Bet>
 		System.out.println(App.leftJustifyText(toString(), 1, true));
 	}
 	
-	public void printStatus(CurrentGameData gameData) {
+	public boolean printStatus(CurrentGameData gameData) {
 		if (gameData == null || !gameData.isGameLive) {
 			printStatusInactive();
+			return true;
 		} else {
-			printStatusActive(gameData);
+			return printStatusActive(gameData);
 		}
 	}
 	
-	private void printStatusActive(CurrentGameData gameData) {
+	private boolean printStatusActive(CurrentGameData gameData) {
 		StringBuilder sb = new StringBuilder();
 		String namePart;
 		String valuePart;
@@ -294,7 +295,11 @@ public class Bet implements Comparable<Bet>
 				namePart = batter.getName();
 				valuePart = "" + type;
 				bDat = gameData.getBatterOfId(batter.getPlayerId());
-				boxes = fillBoxes(2, bDat.totalBases, bDat.stillPlaying);
+				if (bDat == null) {
+					boxes = emptyBoxes(2);
+				} else {
+					boxes = fillBoxes(2, bDat.totalBases, bDat.stillPlaying);
+				}
 				break;
 			case THREE_BASES:
 				namePart = batter.getName();
@@ -331,6 +336,14 @@ public class Bet implements Comparable<Bet>
 		sb.append(createCheckboxes(boxes));
 		
 		System.out.println(App.leftJustifyText(sb.toString(), 1, true));
+		
+		for (char c : boxes) {
+			if (c == FAIL) {
+				return false;
+			}
+		}
+		return true;
+		
 	}
 	
 	private void printStatusInactive() {

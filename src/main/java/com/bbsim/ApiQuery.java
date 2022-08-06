@@ -47,7 +47,7 @@ public class ApiQuery
 		public String fullId;
 		
 		public PlayerNameId(String name, String id, String fullId) {
-			this.name = name;
+			this.name = StringUtils.stripAccents(name);
 			this.id = id;
 			this.fullId = fullId;
 		}

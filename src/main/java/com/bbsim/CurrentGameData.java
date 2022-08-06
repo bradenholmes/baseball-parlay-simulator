@@ -33,8 +33,17 @@ public class CurrentGameData
 			this.liveStatus = liveStatus;
 			this.awayScore = Integer.parseInt(awayScore);
 			this.homeScore = Integer.parseInt(homeScore);
-			this.awayFirstScore = Integer.parseInt(awayFirstScore);
-			this.homeFirstScore = Integer.parseInt(homeFirstScore);
+			
+			if (StringUtils.isNotEmpty(awayFirstScore)) {
+				this.awayFirstScore = Integer.parseInt(awayFirstScore);
+			} else {
+				this.awayFirstScore = 0;
+			}
+			if (StringUtils.isNotEmpty(homeFirstScore)) {
+				this.homeFirstScore = Integer.parseInt(homeFirstScore);
+			} else {
+				this.homeFirstScore = 0;
+			}
 			
 			if ("FINAL".equals(this.liveStatus)) {
 				this.currentInning = 9;

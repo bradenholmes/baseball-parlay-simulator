@@ -13,6 +13,8 @@ public class Parlay
 	Game game;
 	List<Bet> bets;
 	float expectedWinRate;
+	int sportsbookOdds;
+	boolean isStillAlive;
 	
 	
 	transient private float attempts;
@@ -23,8 +25,12 @@ public class Parlay
 		this.game = game;
 		this.bets = new ArrayList<>();
 		this.expectedWinRate = -1;
-		
+		this.isStillAlive = true;
 		betWins = new HashMap<>();
+	}
+	
+	public void setSportsbookOdds(int odds) {
+		this.sportsbookOdds = odds;
 	}
 	
 	public void addBet(Bet bet) {
@@ -85,8 +91,16 @@ public class Parlay
 		return bets.isEmpty();
 	}
 	
+	public boolean isDead() {
+		return !isStillAlive;
+	}
+	
 	public float getExpectedWinRate() {
 		return expectedWinRate;
+	}
+	
+	public int getSportsbookOdds() {
+		return sportsbookOdds;
 	}
 	
 	public List<Bet> getBets(){
@@ -111,15 +125,19 @@ public class Parlay
 	}
 	
 	public void printStatus(CurrentGameData gameData) {
+		isStillAlive = true;
 		System.out.println(App.centerText(game.awayTeam + " " + gameData.gameStats.awayScore + " @ " + gameData.gameStats.homeScore + " " + game.homeTeam, false, true));
 		if (gameData.isGameLive) {
 			System.out.println(App.centerText(gameData.gameStats.liveStatus, false, true));
 		} else {
 			System.out.println(App.centerText("PREGAME", false, true));
 		}
+		System.out.println(App.centerText("Actual odds: +" + this.sportsbookOdds, false, true));
 		
 		for (Bet b : bets) {
-			b.printStatus(gameData);
+			if (!b.printStatus(gameData)) {
+				isStillAlive = false;
+			}
 		}
 		System.out.println(App.centerText("Expected win rate: " + App.percentage(expectedWinRate), false, true));
 		System.out.println(App.TABLE_HORIZ_LINE);
