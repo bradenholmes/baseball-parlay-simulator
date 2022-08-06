@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
@@ -15,6 +16,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import com.bbsim.App;
 import com.bbsim.CurrentGameData;
 import com.bbsim.Parlay;
+import com.bbsim.UpdateTask;
 import com.bbsim.state.ScreenState;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -29,13 +31,21 @@ public class MainState extends ScreenState
 	List<CurrentGameData> gameData;
 	Gson gson;
 	
+	private Timer timer;
+	private UpdateTask updateTask;
+	
 	public MainState() {
 		WebDriverManager.chromedriver().setup();
 		gson = new Gson();
 		parlays = new ArrayList<>();
 		gameData = new ArrayList<>();
 		
+		timer = new Timer();
+		updateTask = new UpdateTask(this, gameData);
+		
 		loadParlaysFromFile();
+		timer = new Timer();
+		timer.scheduleAtFixedRate(updateTask, 0, 30000);
 	}
 	
 	@Override
@@ -60,15 +70,16 @@ public class MainState extends ScreenState
 		} else {
 			System.out.println("Wrong number of params given to MainState");
 		}
+
 	}
 
 	@Override
 	public void end() {
-		
 	}
 
 	@Override
 	public void update() {
+		
 		clearConsole();
 		System.out.println(App.TABLE_END_LINE);
 		System.out.println(App.centerText("TODAY'S PARLAYS", false, true));
@@ -116,16 +127,17 @@ public class MainState extends ScreenState
 			updateAllGames();
 			return;
 		} else if ("quit".equals(input)) {
+			timer.cancel();
 			getManager().killManager();
 		} else {
 			System.out.println("unknown input!");
 		}
 	}
 	
-	private void updateAllGames() {
-		this.clearConsole();
+	public void updateAllGames() {
 		ChromeOptions options = new ChromeOptions();
 		options.setHeadless(true);
+		
 		WebDriver driver = new ChromeDriver(options);
 
 		for (CurrentGameData cg : gameData) {
