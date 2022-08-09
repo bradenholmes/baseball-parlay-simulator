@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.bbsim.CurrentGameData.BatterStats;
@@ -29,26 +30,63 @@ public class Simularity
 			this.awayPitcherStats = gameData.awayPitcherStats;
 			this.homePitcherStats = gameData.homePitcherStats;
 		}
+	}
+	
+	public class BetPredictions {
+		List<SimpleBet> bets;
 		
+		private BetPredictions(CompleteBetSet betSet) {
+			bets = new ArrayList<>();
+			for (Bet b : betSet.getAllBets()) {
+				switch (b.getBetClass()) {
+					case GAME:
+						bets.add(new SimpleBet(null, b.getBetType(), b.value, b.expectedProbability));
+						break;
+					case TEAM:
+						bets.add(new SimpleBet(null, b.getBetType(), b.value, b.expectedProbability));
+						break;
+					case PITCHER:
+						bets.add(new SimpleBet(b.pitcher.getPlayerId(), b.getBetType(), b.value, b.expectedProbability));
+						break;
+					case BATTER:
+						bets.add(new SimpleBet(b.batter.getPlayerId(), b.getBetType(), b.value, b.expectedProbability));
+						break;
+				}
+			}
+		}
+	}
+	
+	public class SimpleBet {
+		String id;
+		BetType t;
+		float v;
+		float p;
+		
+		SimpleBet(String id, BetType type, float value, float prob) {
+			this.id = id;
+			this.t = type;
+			this.v = value;
+			this.p = prob;
+		}
 	}
 	
 	public class PredictionOutcomePair {
 		String gameId;
-		CompleteBetSet betPredictions;
-		FinalBoxScore finalBoxScore;
+		BetPredictions betProbs;
+		FinalBoxScore boxScore;
 		
-		float simularityScore;
+		float simularity;
 		
 		private PredictionOutcomePair(String gameId) {
 			this.gameId = gameId;
 		}
 		
-		private void setBetPredictions(CompleteBetSet betSet) {
-			this.betPredictions = betSet;
+		private void setBetPredictions(BetPredictions betPredictions) {
+			this.betProbs = betPredictions;
 		}
 		
 		private void setFinalBoxScore(FinalBoxScore boxScore) {
-			this.finalBoxScore = boxScore;
+			this.boxScore = boxScore;
 		}
 	}
 	private static final String OUTCOME_SAVE_FILE = "/Programming/GameWorkspace/BaseballSimulator/simularityDatabank.json";
@@ -101,19 +139,21 @@ public class Simularity
 			allOutcomePairs.put(betSet.getGameId(), pair);
 		}
 		
-		pair.setBetPredictions(betSet);
+		pair.setBetPredictions(new BetPredictions(betSet));
 		saveDatabank();
 	}
 	
 	
 	private void loadDatabank() throws Exception{
 		try {
+			System.out.println("Loading databank file...  ");
 			BufferedReader reader = new BufferedReader(new FileReader(OUTCOME_SAVE_FILE));
 			String data = reader.readLine();
 			Type parlayListType = new TypeToken<ArrayList<Parlay>>() {}.getType();
 			allOutcomePairs = gson.fromJson(data, parlayListType);
 
 			reader.close();
+			System.out.print("DONE!");
 			
 			
 		} catch (Exception e) {
