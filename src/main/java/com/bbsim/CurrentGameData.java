@@ -22,12 +22,12 @@ import com.bbsim.ApiQuery.Game;
 public class CurrentGameData
 {
 	public class GameStats {
-		public String liveStatus;
+		public transient String liveStatus;
 		public int awayScore;
 		public int homeScore;
 		public int awayFirstScore;
 		public int homeFirstScore;
-		public int currentInning;
+		public transient int currentInning;
 		
 		private void set(String liveStatus, String awayScore, String homeScore, String awayFirstScore, String homeFirstScore) {
 			this.liveStatus = liveStatus;
@@ -62,7 +62,7 @@ public class CurrentGameData
 		public int totalBases;
 		public int rbi;
 		public int runs;
-		public boolean stillPlaying = true;
+		public transient boolean stillPlaying = true;
 		
 		private void set(String playerId, String hits, String doubles, String triples, String homers, String rbi, String runs) {
 			this.playerId = playerId;
@@ -85,7 +85,7 @@ public class CurrentGameData
 	public class PitcherStats {
 		public String playerId;
 		public int strikeouts;
-		public boolean stillPlaying = true;
+		public transient boolean stillPlaying = true;
 		
 		private void set(String playerId, String strikeouts) {
 			this.playerId = playerId;
@@ -199,6 +199,10 @@ public class CurrentGameData
 			
 			extractPitcherData(awayPitchers, awayPitcherStats);
 			extractPitcherData(homePitchers, homePitcherStats);
+			
+			if ("FINAL".equals(gameStats.liveStatus)) {
+				Simularity.saveFinalScore(this);
+			}
 
 			
 		} catch (Throwable enve) {

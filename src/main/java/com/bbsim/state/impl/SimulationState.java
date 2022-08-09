@@ -4,8 +4,11 @@ import com.bbsim.ApiQuery;
 import com.bbsim.ApiQuery.Game;
 import com.bbsim.ApiQuery.Lineups;
 import com.bbsim.App;
+import com.bbsim.Bet;
+import com.bbsim.CompleteBetSet;
 import com.bbsim.GameSimulation;
 import com.bbsim.Parlay;
+import com.bbsim.Simularity;
 import com.bbsim.SimulationData;
 import com.bbsim.StateVar;
 import com.bbsim.Team;
@@ -95,7 +98,7 @@ public class SimulationState extends FunctionState
             	
             }
             
-            if (homeTeam.getRuns() > awayTeam.getRuns()) {
+            if (homeTeam.getRuns() >= awayTeam.getRuns()) {
             	homeWins++;
             } else {
             	awayWins++;
@@ -113,7 +116,46 @@ public class SimulationState extends FunctionState
     	data.setAwayTeamData(awayTeam, awayWins, totalAwayRuns);
     	data.setFirstInningData(awayTeam, homeTeam);
     	
+    	completeBetSetSim(data);
+    	
 		return new FunctionResult(App.PARLAY_BUILDER_STATE, data);
+	}
+	
+	private void completeBetSetSim(SimulationData data) {
+		Team homeTeam = data.homeData.team;
+		Team awayTeam = data.awayData.team;
+		
+		homeTeam.endGame(true);
+		awayTeam.endGame(true);
+		
+		CompleteBetSet betSet = new CompleteBetSet(data);
+		
+		Parlay testParlay = new Parlay(simGame);
+		for (Bet b: betSet.getAllBets()) {
+			testParlay.addBet(b);
+		}
+		
+		
+    	System.out.println("simulating all bets....");
+    	float simulations = 100000;
+    	for (int i = 0; i < simulations; i++) {
+            GameSimulation game = new GameSimulation(homeTeam, awayTeam);
+            
+            while(game.step(false)) {
+            	
+            }
+            
+            testParlay.evaluate(game);
+            
+            homeTeam.endGame(true);
+            awayTeam.endGame(true);
+    	}
+    	
+    	testParlay.endEvaluation();
+    	
+    	Simularity.saveBetPredictions(betSet);
+    	data.setCompleteBetSet(betSet);
+    	
 	}
 	
 	private FunctionResult parlayTestSim() {

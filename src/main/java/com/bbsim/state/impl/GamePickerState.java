@@ -2,6 +2,8 @@ package com.bbsim.state.impl;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.bbsim.ApiQuery.Game;
 import com.bbsim.App;
 import com.bbsim.state.ScreenState;
@@ -19,7 +21,7 @@ public class GamePickerState extends ScreenState
 		this.clearConsole();
 		System.out.println("Select a game: ");
 		for (int i = 0; i < allGames.size(); i++) {
-			System.out.println("    " + i + ".) " + allGames.get(i).toString());
+			System.out.println(StringUtils.leftPad("    " + i + ".) ", 8) + allGames.get(i).toString());
 		}
 	}
 

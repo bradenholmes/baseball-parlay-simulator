@@ -11,6 +11,7 @@ import java.util.Timer;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeDriverLogLevel;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import com.bbsim.App;
@@ -25,12 +26,13 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class MainState extends ScreenState
 {
-	private static final String saveFile = "/Programming/GameWorkspace/BaseballSimulator/parlays.json";
+	private static final String PARLAY_SAVE_FILE = "/Programming/GameWorkspace/BaseballSimulator/parlays.json";
 	
 	List<Parlay> parlays;
 	List<CurrentGameData> gameData;
 	Gson gson;
 	
+	private boolean isUpdating;
 	private Timer timer;
 	private UpdateTask updateTask;
 	
@@ -45,7 +47,7 @@ public class MainState extends ScreenState
 		
 		loadParlaysFromFile();
 		timer = new Timer();
-		timer.scheduleAtFixedRate(updateTask, 0, 30000);
+		timer.scheduleAtFixedRate(updateTask, 0, 90000);
 	}
 	
 	@Override
@@ -135,8 +137,13 @@ public class MainState extends ScreenState
 	}
 	
 	public void updateAllGames() {
+		if (isUpdating) {
+			return;
+		}
+		isUpdating = true;
 		ChromeOptions options = new ChromeOptions();
 		options.setHeadless(true);
+		options.setLogLevel(ChromeDriverLogLevel.OFF);
 		
 		WebDriver driver = new ChromeDriver(options);
 
@@ -146,6 +153,7 @@ public class MainState extends ScreenState
 		
 		driver.close();
 		driver.quit();
+		isUpdating = false;
 	}
 	
 	private void clearAllParlays() {
@@ -178,7 +186,7 @@ public class MainState extends ScreenState
 	private void saveParlaysToFile() {
 		try {
 			String data = gson.toJson(parlays);
-			FileOutputStream outputStream = new FileOutputStream(saveFile);
+			FileOutputStream outputStream = new FileOutputStream(PARLAY_SAVE_FILE);
 			byte[] strBytes = data.getBytes();
 			outputStream.write(strBytes);
 			outputStream.close();
@@ -190,7 +198,7 @@ public class MainState extends ScreenState
 	
 	private void loadParlaysFromFile() {
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(saveFile));
+			BufferedReader reader = new BufferedReader(new FileReader(PARLAY_SAVE_FILE));
 			String data = reader.readLine();
 			Type parlayListType = new TypeToken<ArrayList<Parlay>>() {}.getType();
 			parlays = gson.fromJson(data, parlayListType);

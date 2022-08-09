@@ -39,7 +39,12 @@ public class SimulationData
 		}
 		
 		public String toString() {
-			return StringUtils.leftPad(batter.getName(), 15) 
+			
+			if (!batter.shouldInclude()) {
+				return StringUtils.leftPad(batter.getName(), 17) + "  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  - ";
+			}
+			
+			return StringUtils.leftPad(batter.getName(), 17) 
 					+ "  Hits: " + App.decimal(avgHits) 
 					+ "   Bases: " + App.decimal(avgBases) 
 					+ "   Homers: " + App.decimal(avgHomers) 
@@ -58,7 +63,10 @@ public class SimulationData
 		}
 		
 		public String toString() {
-			return StringUtils.leftPad(pitcher.getName(), 15) + "  Ks: " + App.decimal(avgKs);
+			if (!pitcher.shouldInclude()) {
+				return StringUtils.leftPad(pitcher.getName(), 17) + " has too few starts... consider skipping this game!";
+			}
+			return StringUtils.leftPad(pitcher.getName(), 17) + "  Ks: " + App.decimal(avgKs);
 		}
 	}
 	
@@ -140,6 +148,8 @@ public class SimulationData
 	
 	public FirstInningData firstInningData;
 	
+	public CompleteBetSet completeBetSet;
+	
 	public SimulationData(Game game, float simulations) {
 		this.simGame = game;
 		this.simulations = simulations;
@@ -161,6 +171,10 @@ public class SimulationData
 	
 	public void setFirstInningData(Team awayTeam, Team homeTeam) {
 		firstInningData = new FirstInningData(awayTeam, homeTeam, simulations);
+	}
+	
+	public void setCompleteBetSet(CompleteBetSet cbs) {
+		this.completeBetSet = cbs;
 	}
 	
 	private void setHomeBatters(Batter[] batters) {
@@ -205,5 +219,8 @@ public class SimulationData
 		
 		System.out.println(App.TABLE_EMPTY_LINE);
 		firstInningData.print();
+		
+//		System.out.println(App.TABLE_EMPTY_LINE);
+//		completeBetSet.print();
 	}
 }

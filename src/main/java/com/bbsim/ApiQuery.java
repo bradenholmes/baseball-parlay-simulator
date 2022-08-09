@@ -46,10 +46,26 @@ public class ApiQuery
 		public String id;
 		public String fullId;
 		
-		public PlayerNameId(String name, String id, String fullId) {
-			this.name = StringUtils.stripAccents(name);
-			this.id = id;
+		public PlayerNameId(String fullId) {
 			this.fullId = fullId;
+			
+			String[] parts = StringUtils.split(fullId, '-');
+			StringBuilder nameBuilder = new StringBuilder();
+			for(int i = 0; i < parts.length - 1; i ++) {
+				nameBuilder.append(StringUtils.capitalize(parts[i]));
+				nameBuilder.append(" ");
+			}
+			String playerName = StringUtils.trim(nameBuilder.toString());
+			if (playerName.length() > 17) {
+				nameBuilder = new StringBuilder();
+				String[] nameParts = StringUtils.split(playerName, " ");
+				nameBuilder.append(StringUtils.left(nameParts[0], 2));
+				nameBuilder.append(". ");
+				nameBuilder.append(nameParts[nameParts.length - 1]);
+				playerName = nameBuilder.toString();
+			}
+			this.name = playerName;
+			this.id = parts[parts.length - 1];
 		}
 	}
 	
@@ -149,8 +165,8 @@ public class ApiQuery
 	
 	//MLB.com call for lineups
 	private static final String MLB_LINEUPS = "https://www.mlb.com/starting-lineups";
-	private static final String PLATOON_STATS_START = "https://baseballsavant.mlb.com/savant-player/";
-	private static final String PLATOON_STATS_END = "?stats=splits-r-hitting-mlb&season=2022";
+	private static final String BATTING_SPLITS_START = "https://baseballsavant.mlb.com/savant-player/";
+	private static final String BATTING_SPLITS_END = "?stats=splits-r-hitting-mlb&season=2022";
 	
 	
 	@SuppressWarnings("deprecation")
@@ -269,11 +285,11 @@ public class ApiQuery
 			Elements pitchers = gameElement.getElementsByClass("starting-lineups__pitchers").get(0).firstElementChild().getElementsByClass("starting-lineups__pitcher-summary");
 			
 			Element homePitElem = pitchers.get(2).getElementsByClass("starting-lineups__pitcher-name").get(0).firstElementChild();
-			PlayerNameId homePitcher = new PlayerNameId(homePitElem.text(), StringUtils.right(homePitElem.attr("href"), 6), StringUtils.substringAfter(homePitElem.attr("href"), "/player/"));
+			PlayerNameId homePitcher = new PlayerNameId(StringUtils.substringAfter(homePitElem.attr("href"), "/player/"));
 			Element awayPitElem = pitchers.get(0).getElementsByClass("starting-lineups__pitcher-name").get(0).firstElementChild();
-			PlayerNameId awayPitcher = new PlayerNameId(awayPitElem.text(), StringUtils.right(awayPitElem.attr("href"), 6), StringUtils.substringAfter(homePitElem.attr("href"), "/player/"));
+			PlayerNameId awayPitcher = new PlayerNameId(StringUtils.substringAfter(awayPitElem.attr("href"), "/player/"));
 
-			Element teams = gameElement.getElementsByClass("starting-lineups__teams starting-lineups__teams--xs starting-lineups__teams--md starting-lineups__teams--lg").get(0);
+			Element teams = gameElement.getElementsByClass("starting-lineups__teams starting-lineups__teams--sm starting-lineups__teams--xl").get(0);
 			Elements awayBatters = teams.getElementsByClass("starting-lineups__team  starting-lineups__team--away").get(0).getElementsByClass("starting-lineups__player");
 			Elements homeBatters = teams.getElementsByClass("starting-lineups__team starting-lineups__team--home").get(0).getElementsByClass("starting-lineups__player");
 			PlayerNameId[] awayBats = new PlayerNameId[9];
@@ -283,7 +299,7 @@ public class ApiQuery
 			int i = 0;
 			while(it.hasNext()) {
 				Element e = it.next().firstElementChild();
-				awayBats[i] = new PlayerNameId(e.text(), StringUtils.right(e.attr("href"), 6), StringUtils.substringAfter(e.attr("href"), "/player/"));
+				awayBats[i] = new PlayerNameId(StringUtils.substringAfter(e.attr("href"), "/player/"));
 				i++;
 			}
 			
@@ -291,7 +307,7 @@ public class ApiQuery
 			i = 0;
 			while(it.hasNext()) {
 				Element e = it.next().firstElementChild();
-				homeBats[i] = new PlayerNameId(e.text(), StringUtils.right(e.attr("href"), 6), StringUtils.substringAfter(e.attr("href"), "/player/"));
+				homeBats[i] = new PlayerNameId(StringUtils.substringAfter(e.attr("href"), "/player/"));
 				i++;
 			}
 			
@@ -309,9 +325,9 @@ public class ApiQuery
 	
 	public static Map<BattingSplitType, BattingSplit> getBattingSplits(String fullPlayerId) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(PLATOON_STATS_START);
+		sb.append(BATTING_SPLITS_START);
 		sb.append(fullPlayerId);
-		sb.append(PLATOON_STATS_END);
+		sb.append(BATTING_SPLITS_END);
 		
 		try {
 		URL url = new URL(sb.toString());

@@ -84,9 +84,17 @@ public class Bet implements Comparable<Bet>
 		boolean result = false;
 		switch (type) {
 			case MONEY_LINE:
-				if (favorite.getRuns() >= underdog.getRuns()) {
-					result = true;
+				//This is scuffed. Home team is assumed to win in a game that goes to extra innings.
+				if (favorite.getHomeAway() == StateVar.HOME) {
+					if (favorite.getRuns() >= underdog.getRuns()) {
+						result = true;
+					}
+				} else {
+					if (favorite.getRuns() > underdog.getRuns()) {
+						result = true;
+					}
 				}
+
 				break;
 			case RUN_LINE:
 				if (favorite.getRuns() + value > underdog.getRuns()) {
@@ -123,7 +131,7 @@ public class Bet implements Comparable<Bet>
 						}
 						break;
 					case AWAY_WIN:
-						if (favorite.getFirstInningRuns() < underdog.getFirstInningRuns()) {
+						if (favorite.getFirstInningRuns() > underdog.getFirstInningRuns()) {
 							result = true;
 						}
 						break;
@@ -543,7 +551,7 @@ public class Bet implements Comparable<Bet>
 	private String createFirstInningValPart() {
 		FirstInningBet fib = FirstInningBet.ofOridinal((int) value);
 		String homeName = favorite.getHomeAway() == StateVar.HOME ? favorite.getName() : underdog.getName();
-		String awayName = underdog.getHomeAway() == StateVar.HOME ? underdog.getName() : favorite.getName();
+		String awayName = underdog.getHomeAway() == StateVar.AWAY ? underdog.getName() : favorite.getName();
 		
 		String valuePart;
 

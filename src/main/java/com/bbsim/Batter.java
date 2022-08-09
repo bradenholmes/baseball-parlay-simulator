@@ -209,7 +209,7 @@ public class Batter extends Player
 	
 	public void print() {
 		System.out.println(getName());
-		if (splits != null) {
+		if (shouldInclude()) {
 			for (BattingSplit split : splits.values()) {
 				split.print();
 			}
