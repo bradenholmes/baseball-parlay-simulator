@@ -17,6 +17,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import com.bbsim.App;
 import com.bbsim.CurrentGameData;
 import com.bbsim.Parlay;
+import com.bbsim.Simularity;
 import com.bbsim.UpdateTask;
 import com.bbsim.state.ScreenState;
 import com.google.gson.Gson;
@@ -164,6 +165,7 @@ public class MainState extends ScreenState
 	}
 	
 	private void clearAllParlays() {
+		Simularity.cleanup();
 		parlays.clear();
 		gameData.clear();
 		saveParlaysToFile();

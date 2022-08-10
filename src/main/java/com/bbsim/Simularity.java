@@ -122,6 +122,10 @@ public class Simularity
 		get().saveBets(betSet);
 	}
 	
+	public static void cleanup() {
+		get().cleanDatabank();
+	}
+	
 	private void saveScore(CurrentGameData gameData) {
 		PredictionOutcomePair pair = allOutcomePairs.getOrDefault(gameData.game.gameId, null);
 		if (pair == null) {
@@ -173,5 +177,20 @@ public class Simularity
 			System.err.println("ERROR: Failed to save databank file");
 			e.printStackTrace();
 		}
+	}
+	
+	private void cleanDatabank() {
+		List<String> removeList = new ArrayList<>();
+		for (PredictionOutcomePair pair : allOutcomePairs.values()) {
+			if (pair.betProbs == null || pair.boxScore == null) {
+				removeList.add(pair.gameId);
+			}
+		}
+		
+		for (String gameId : removeList) {
+			allOutcomePairs.remove(gameId);
+		}
+		
+		saveDatabank();
 	}
 }
