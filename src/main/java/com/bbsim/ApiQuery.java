@@ -84,13 +84,22 @@ public class ApiQuery
 		public PlayerNameId pitcher;
 		public PlayerNameId[] batters;
 		
-		public TeamLineup(String teamName, PlayerNameId pitcher, PlayerNameId[] batters) {
+		public TeamLineup(String teamName, PlayerNameId pitcher, PlayerNameId[] batters) throws Exception {
 			this.teamName = teamName;
 			this.pitcher = pitcher;
 			if (batters.length != 9) {
 				System.err.println("MORE OR LESS THAN 9 BATTERS WERE FOUND IN THE LINEUP");
 			} else {
 				this.batters = batters;
+			}
+			
+			if (pitcher == null) {
+				throw new Exception();
+			}
+			for (PlayerNameId bat : batters) {
+				if (bat == null) {
+					throw new Exception();
+				}
 			}
 		}
 	}
@@ -311,6 +320,9 @@ public class ApiQuery
 				i++;
 			}
 			
+			
+			
+			
 			TeamLineup homeLineup = new TeamLineup(homeTeam, homePitcher, homeBats);
 			TeamLineup awayLineup = new TeamLineup(awayTeam, awayPitcher, awayBats);
 			
@@ -318,7 +330,7 @@ public class ApiQuery
 			
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("Looks like the full lineups for this game have not been posted!");
 			return null;
 		}
 	}
@@ -330,32 +342,32 @@ public class ApiQuery
 		sb.append(BATTING_SPLITS_END);
 		
 		try {
-		URL url = new URL(sb.toString());
-		URLConnection request = url.openConnection();
-		request.connect();
-		
-		BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
-		sb = new StringBuilder();
-		String inputLine;
-		while((inputLine = in.readLine()) != null) {
-			sb.append(inputLine);
-			sb.append("\n");
-		}
-		in.close();
+			URL url = new URL(sb.toString());
+			URLConnection request = url.openConnection();
+			request.connect();
+			
+			BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
+			sb = new StringBuilder();
+			String inputLine;
+			while((inputLine = in.readLine()) != null) {
+				sb.append(inputLine);
+				sb.append("\n");
+			}
+			in.close();
+			
+			Document doc = Jsoup.parse(sb.toString());
+			
+			Map<BattingSplitType, BattingSplit> splits = new HashMap<>();
+			splits.put(BattingSplitType.LHP, extractSplit(BattingSplitType.LHP, doc));
+			splits.put(BattingSplitType.RHP, extractSplit(BattingSplitType.RHP, doc));
+			splits.put(BattingSplitType.HOME, extractSplit(BattingSplitType.HOME, doc));
+			splits.put(BattingSplitType.AWAY, extractSplit(BattingSplitType.AWAY, doc));
+			
+			return splits;
 		} catch (Exception e) {
-			System.err.println("ERROR: Looks like the full lineups for this game have not been posted!");
+			System.out.println("failed setting stats for playerId: " + fullPlayerId);
 			return null;
 		}
-		
-		Document doc = Jsoup.parse(sb.toString());
-		
-		Map<BattingSplitType, BattingSplit> splits = new HashMap<>();
-		splits.put(BattingSplitType.LHP, extractSplit(BattingSplitType.LHP, doc));
-		splits.put(BattingSplitType.RHP, extractSplit(BattingSplitType.RHP, doc));
-		splits.put(BattingSplitType.HOME, extractSplit(BattingSplitType.HOME, doc));
-		splits.put(BattingSplitType.AWAY, extractSplit(BattingSplitType.AWAY, doc));
-		
-		return splits;
 	}
 	
 	

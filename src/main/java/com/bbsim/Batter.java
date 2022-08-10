@@ -24,6 +24,11 @@ public class Batter extends Player
 	}
 	
 	public void setBattingSplits(Map<BattingSplitType, BattingSplit> splits) {
+		if (splits == null) {
+			System.out.println("Set empty");
+			setEmptyData();
+			return;
+		}
 		this.splits = splits;
 	}
 	

@@ -84,9 +84,8 @@ public class Bet implements Comparable<Bet>
 		boolean result = false;
 		switch (type) {
 			case MONEY_LINE:
-				//This is scuffed. Home team is assumed to win in a game that goes to extra innings.
 				if (favorite.getHomeAway() == StateVar.HOME) {
-					if (favorite.getRuns() >= underdog.getRuns()) {
+					if (favorite.getRuns() > underdog.getRuns()) {
 						result = true;
 					}
 				} else {

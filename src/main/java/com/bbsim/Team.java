@@ -118,7 +118,7 @@ public class Team
 			Batter batter = new Batter(lineup.batters[i].name, lineup.batters[i].id, homeAway);
 			batter.setBattingSplits(ApiQuery.getBattingSplits(lineup.batters[i].fullId));
 			JsonObject battingStats = ApiQuery.query(ApiQuery.API_BATTING_ENDPOINT, "mlb", "2022", lineup.batters[i].id);
-			if (battingStats != null && batter.getTotalPAs() > MINIMUM_PAS) {
+			if (battingStats != null && batter.shouldInclude() && batter.getTotalPAs() > MINIMUM_PAS) {
 				batter.setBattingSplits(ApiQuery.getBattingSplits(lineup.batters[i].fullId));
 				batter.setStealingData(battingStats.get("sb").getAsInt(), battingStats.get("cs").getAsInt());
 				batter.setOutData(battingStats.get("so").getAsInt(), battingStats.get("go").getAsInt(), battingStats.get("ao").getAsInt(), battingStats.get("gidp").getAsInt(), battingStats.get("gidp_opp").getAsInt());

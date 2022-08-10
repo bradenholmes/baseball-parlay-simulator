@@ -14,6 +14,7 @@ public class GameSimulation
 	
 	int inning;
 	StateVar topBottom;
+	StateVar gameStatus;
 	int outs;
 	
 	Batter firstBase;
@@ -29,6 +30,7 @@ public class GameSimulation
 		
 		inning = 1;
 		topBottom = StateVar.TOP;
+		gameStatus = StateVar.REGULATION;
 		outs = 0;
 		
 		firstBase = null;
@@ -56,8 +58,8 @@ public class GameSimulation
 	 */
 	public boolean step(boolean print) {
 		//Game end condition. Ignore ties + extras
-		if (inning == 9) {
-			if (topBottom == StateVar.BOTTOM && (outs >= 3 || homeTeam.getRuns() > awayTeam.getRuns())) {
+		if (inning >= 9) {
+			if (topBottom == StateVar.BOTTOM && (homeTeam.getRuns() > awayTeam.getRuns())) {
 				return false;
 			}
 		}
@@ -70,6 +72,11 @@ public class GameSimulation
 			thirdBase = null;
 			if (topBottom == StateVar.TOP) {
 				topBottom = StateVar.BOTTOM;
+				if (gameStatus == StateVar.EXTRA_INNINGS) {
+					//I don't want to store the 'last out' in order to determine who should start on 2nd.
+					//Instead I'll just put any batter there, and I won't count runs scored past 9 innings.
+					secondBase = homeTeam.getBatter(0);
+				}
 			} else {
 				
 				if (inning == 1) {
@@ -79,6 +86,12 @@ public class GameSimulation
 				
 				topBottom = StateVar.TOP;
 				inning++;
+				
+				if (inning > 9) {
+					gameStatus = StateVar.EXTRA_INNINGS;
+					//See above comment
+					secondBase = awayTeam.getBatter(0);
+				}
 				
 				
 			}
@@ -237,7 +250,10 @@ public class GameSimulation
 		if (n == 1) {
 			if (onThird != null) {
 				runsScored++;
-				thirdBase.addRun();
+				if (gameStatus == StateVar.REGULATION) {
+					thirdBase.addRun();
+				}
+				
 				thirdBase = null;
 			}
 			if (onSecond != null) {
@@ -252,7 +268,9 @@ public class GameSimulation
 				}
 				
 				if (val <= score_pct) {
-					secondBase.addRun();
+					if (gameStatus == StateVar.REGULATION) {
+						secondBase.addRun();
+					}
 					runsScored++;
 					secondBase = null;
 				} else {
@@ -268,18 +286,24 @@ public class GameSimulation
 		} else if (n == 2) {
 			if (onThird != null) {
 				runsScored++;
-				thirdBase.addRun();
+				if (gameStatus == StateVar.REGULATION) {
+					thirdBase.addRun();
+				}
 				thirdBase = null;
 			}
 			if (onSecond != null) {
 				runsScored++;
-				secondBase.addRun();
+				if (gameStatus == StateVar.REGULATION) {
+					secondBase.addRun();
+				}
 				secondBase = null;
 			}
 			if (onFirst != null) {
 				float val = getRandomFloat();
 				if (val <= SCORE_FROM_FIRST_CHANCE) {
-					firstBase.addRun();
+					if (gameStatus == StateVar.REGULATION) {
+						firstBase.addRun();
+					}
 					runsScored++;
 					firstBase = null;
 				} else {
@@ -291,17 +315,23 @@ public class GameSimulation
 		} else if (n == 3) {
 			if (onThird != null) {
 				runsScored++;
-				thirdBase.addRun();
+				if (gameStatus == StateVar.REGULATION) {
+					thirdBase.addRun();
+				}
 				thirdBase = null;
 			}
 			if (onSecond != null) {
 				runsScored++;
-				secondBase.addRun();
+				if (gameStatus == StateVar.REGULATION) {
+					secondBase.addRun();
+				}
 				secondBase = null;
 			}
 			if (onFirst != null) {
 				runsScored++;
-				firstBase.addRun();
+				if (gameStatus == StateVar.REGULATION) {
+					firstBase.addRun();
+				}
 				firstBase = null;
 			}
 		}

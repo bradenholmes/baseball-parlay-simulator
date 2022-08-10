@@ -79,7 +79,7 @@ public class SimulationState extends FunctionState
 	private FunctionResult preParlaySim() {
     	Lineups lineups = ApiQuery.getLineups(simGame.gameId);
     	if (lineups == null) {
-    		System.out.println("Press any key to continue...");
+    		System.out.println("Press enter to continue...");
     		this.getManager().getScanner().nextLine();
     		return new FunctionResult(App.MAIN_STATE);
     	}
@@ -103,10 +103,12 @@ public class SimulationState extends FunctionState
             	
             }
             
-            if (homeTeam.getRuns() >= awayTeam.getRuns()) {
+            if (homeTeam.getRuns() > awayTeam.getRuns()) {
             	homeWins++;
-            } else {
+            } else if (awayTeam.getRuns() > homeTeam.getRuns()) {
             	awayWins++;
+            } else {
+            	System.out.println("ERROR: Ties should not be possible...");
             }
             
             totalHomeRuns += homeTeam.getRuns();
