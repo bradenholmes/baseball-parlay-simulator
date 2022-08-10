@@ -50,7 +50,6 @@ public class BetSubjectState extends ScreenState
 			System.out.println("  1.) " + simData.awayPitcherData.pitcher.getName());
 			System.out.println("  2.) " + simData.homePitcherData.pitcher.getName());
 		} else if (this.bet.getBetClass() == BetClass.BATTER) {
-			List<Bet> preCompBets = simData.completeBetSet.getBetsOfType(bet.getBetType());
 			batters = new ArrayList<>();
 			for (BatterData b : simData.awayBatterData) {
 				batters.add(b.batter);
@@ -60,7 +59,9 @@ public class BetSubjectState extends ScreenState
 			}
 			System.out.println("For which batter?");
 			for (int i = 0; i < batters.size(); i++) {
-				System.out.println(StringUtils.leftPad("  " + i + ".) ", 8) + StringUtils.rightPad(batters.get(i).getName(), 17) + "   -- " + App.percentage(preCompBets.get(i).getExpectedProbability()));
+				Bet b = simData.completeBetSet.getBatterBet(bet.getBetType(), batters.get(i).getPlayerId());
+				String betProb = b == null ? "" : App.percentage(b.getExpectedProbability());
+				System.out.println(StringUtils.leftPad("  " + i + ".) ", 8) + StringUtils.rightPad(batters.get(i).getName(), 17) + "   -- " + betProb);
 			}
 		}
 		

@@ -116,15 +116,14 @@ public class CompleteBetSet
 		return allBets;
 	}
 	
-	public List<Bet> getBetsOfType(BetType type) {
-		List<Bet> betsOfType = new ArrayList<>();
+	public Bet getBatterBet(BetType type, String playerId) {
 		for (Bet b : allBets) {
-			if (b.type == type) {
-				betsOfType.add(b);
+			if (b.type == type && playerId.equals(b.batter.getPlayerId())) {
+				return b;
 			}
 		}
 		
-		return betsOfType;
+		return null;
 	}
 	
 	public String getGameId() {
