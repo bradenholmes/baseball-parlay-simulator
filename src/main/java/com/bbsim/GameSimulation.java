@@ -59,7 +59,7 @@ public class GameSimulation
 	public boolean step(boolean print) {
 		//Game end condition. Ignore ties + extras
 		if (inning >= 9) {
-			if (topBottom == StateVar.BOTTOM && (homeTeam.getRuns() > awayTeam.getRuns())) {
+			if (topBottom == StateVar.BOTTOM && ((homeTeam.getRuns() > awayTeam.getRuns()) || (outs >= 3 && homeTeam.getRuns() != awayTeam.getRuns()))) {
 				return false;
 			}
 		}
