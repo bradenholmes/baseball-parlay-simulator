@@ -13,6 +13,7 @@ public class Bet implements Comparable<Bet>
 	private static final char WINNING_NOW = '~';
 	private static final char LOSING_NOW = '!';
 	private static final char EMPTY = ' ';
+	private static final char QUESTION = '?';
 	
 	BetClass betClass;
 	BetType type;
@@ -290,20 +291,28 @@ public class Bet implements Comparable<Bet>
 				namePart = batter.getName();
 				valuePart = "" + type;
 				bDat = gameData.getBatterOfId(batter.getPlayerId());
-				boxes = fillBoxes(1, bDat.hits, bDat.stillPlaying);
+				if (bDat == null) {
+					boxes = unknownBoxes(1);
+				} else {
+					boxes = fillBoxes(1, bDat.totalBases, bDat.stillPlaying);
+				}
 				break;
 			case TWO_HIT:
 				namePart = batter.getName();
 				valuePart = "" + type;
 				bDat = gameData.getBatterOfId(batter.getPlayerId());
-				boxes = fillBoxes(2, bDat.hits, bDat.stillPlaying);
+				if (bDat == null) {
+					boxes = unknownBoxes(2);
+				} else {
+					boxes = fillBoxes(2, bDat.totalBases, bDat.stillPlaying);
+				}
 				break;
 			case TWO_BASES:
 				namePart = batter.getName();
 				valuePart = "" + type;
 				bDat = gameData.getBatterOfId(batter.getPlayerId());
 				if (bDat == null) {
-					boxes = emptyBoxes(2);
+					boxes = unknownBoxes(2);
 				} else {
 					boxes = fillBoxes(2, bDat.totalBases, bDat.stillPlaying);
 				}
@@ -312,25 +321,41 @@ public class Bet implements Comparable<Bet>
 				namePart = batter.getName();
 				valuePart = "" + type;
 				bDat = gameData.getBatterOfId(batter.getPlayerId());
-				boxes = fillBoxes(3, bDat.totalBases, bDat.stillPlaying);
+				if (bDat == null) {
+					boxes = unknownBoxes(3);
+				} else {
+					boxes = fillBoxes(3, bDat.totalBases, bDat.stillPlaying);
+				}
 				break;
 			case HOME_RUN:
 				namePart = batter.getName();
 				valuePart = "" + type;
 				bDat = gameData.getBatterOfId(batter.getPlayerId());
-				boxes = fillBoxes(1, bDat.homers, bDat.stillPlaying);
+				if (bDat == null) {
+					boxes = unknownBoxes(1);
+				} else {
+					boxes = fillBoxes(1, bDat.totalBases, bDat.stillPlaying);
+				}
 				break;
 			case RBI:
 				namePart = batter.getName();
 				valuePart = "" + type;
 				bDat = gameData.getBatterOfId(batter.getPlayerId());
-				boxes = fillBoxes(1, bDat.rbi, bDat.stillPlaying);
+				if (bDat == null) {
+					boxes = unknownBoxes(1);
+				} else {
+					boxes = fillBoxes(1, bDat.totalBases, bDat.stillPlaying);
+				}
 				break;
 			case RUN:
 				namePart = batter.getName();
 				valuePart = "" + type;
 				bDat = gameData.getBatterOfId(batter.getPlayerId());
-				boxes = fillBoxes(1, bDat.runs, bDat.stillPlaying);
+				if (bDat == null) {
+					boxes = unknownBoxes(1);
+				} else {
+					boxes = fillBoxes(1, bDat.totalBases, bDat.stillPlaying);
+				}
 				break;
 			default:
 				namePart = "";
@@ -466,6 +491,14 @@ public class Bet implements Comparable<Bet>
 		char[] boxes = new char[count];
 		for (int i = 0; i < count; i++) {
 			boxes[i] = EMPTY;
+		}
+		return boxes;
+	}
+	
+	private char[] unknownBoxes(int count) {
+		char[] boxes = new char[count];
+		for (int i = 0; i < count; i++) {
+			boxes[i] = QUESTION;
 		}
 		return boxes;
 	}
