@@ -14,7 +14,7 @@ public class Team
 {
 	
 	private static final int MINIMUM_PAS = 50;
-	private static final int MINIMUM_STARTS = 3;
+	private static final int MINIMUM_STARTS = 2;
 	
 	private StateVar homeAway;
 	private String name;
@@ -101,7 +101,7 @@ public class Team
 		JsonObject pitchingStats = ApiQuery.query(ApiQuery.API_PITCHING_ENDPOINT, "mlb", "2022", lineup.pitcher.id);
 		StateVar handed = "R".equals(ApiQuery.query(ApiQuery.API_PLAYERINFO_ENDPOINT, "mlb", "2022", lineup.pitcher.id).get("throws").getAsString()) ? StateVar.RIGHTY : StateVar.LEFTY;
 		pitcher.setHandedness(handed);
-		if (pitchingStats == null || pitchingStats.get("gs").getAsInt() < MINIMUM_STARTS) {
+		if (pitchingStats == null || pitchingStats.get("gs").getAsFloat() < MINIMUM_STARTS) {
 			if (pitchingStats == null) {
 				System.out.println("NOTE: " + pitcher.getName() + "'s stats could not be found! Check handedness....");
 			} else {
@@ -120,11 +120,11 @@ public class Team
 			JsonObject battingStats = ApiQuery.query(ApiQuery.API_BATTING_ENDPOINT, "mlb", "2022", lineup.batters[i].id);
 			if (battingStats != null && batter.shouldInclude() && batter.getTotalPAs() > MINIMUM_PAS) {
 				batter.setBattingSplits(ApiQuery.getBattingSplits(lineup.batters[i].fullId));
-				batter.setStealingData(battingStats.get("sb").getAsInt(), battingStats.get("cs").getAsInt());
-				batter.setOutData(battingStats.get("so").getAsInt(), battingStats.get("go").getAsInt(), battingStats.get("ao").getAsInt(), battingStats.get("gidp").getAsInt(), battingStats.get("gidp_opp").getAsInt());
+				batter.setStealingData(battingStats.get("sb").getAsFloat(), battingStats.get("cs").getAsFloat());
+				batter.setOutData(battingStats.get("so").getAsFloat(), battingStats.get("go").getAsFloat(), battingStats.get("ao").getAsFloat(), battingStats.get("gidp").getAsFloat(), battingStats.get("gidp_opp").getAsFloat());
 			} else {
 				if (battingStats != null) {
-					System.out.println("NOTE: " + batter.getName() + " has only " + battingStats.get("tpa").getAsInt() + " PAs. His stats will not be included!");
+					System.out.println("NOTE: " + batter.getName() + " has only " + battingStats.get("tpa").getAsFloat() + " PAs. His stats will not be included!");
 				} else {
 					System.out.println("NOTE: " + batter.getName() + "'s stats could not be found!");
 				}

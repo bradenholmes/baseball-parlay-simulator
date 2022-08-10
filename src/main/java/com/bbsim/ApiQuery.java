@@ -205,10 +205,30 @@ public class ApiQuery
 				return null;
 			}
 			
-	    	JsonObject stats;
+	    	JsonObject stats = new JsonObject();
 	    	if (queryResults.get("row") instanceof JsonArray) {
 	    		JsonArray rows = queryResults.getAsJsonArray("row");
-	    		stats = rows.get(rows.size() - 1).getAsJsonObject();
+	    		Iterator<JsonElement> it = rows.iterator();
+	    		while (it.hasNext()) {
+	    			JsonObject row = it.next().getAsJsonObject();
+	    			for (String key : row.keySet()) {
+	    				JsonElement existing = stats.get(key);
+	    				if (existing == null) {
+	    					stats.add(key, row.get(key));
+	    				} else {
+	    					String value = existing.getAsString();
+	    					try {
+	    						float val = Float.parseFloat(value);
+	    						val += row.get(key).getAsFloat();
+	    						stats.remove(key);
+	    						stats.addProperty(key, String.valueOf(val));
+	    						
+	    					} catch (Exception e) {
+	    						//do nothing
+	    					}
+	    				}
+	    			}
+	    		}
 	    	} else {
 	    		stats = queryResults.getAsJsonObject("row");
 	    	}

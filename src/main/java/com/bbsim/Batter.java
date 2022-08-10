@@ -32,9 +32,9 @@ public class Batter extends Player
 		this.splits = splits;
 	}
 	
-	public void setStealingData(int stolenBases, int caughtStealing) {
-		this.stolenBases = stolenBases;
-		this.caughtStealing = caughtStealing;
+	public void setStealingData(float stolenBases, float caughtStealing) {
+		this.stolenBases = (int) stolenBases;
+		this.caughtStealing = (int) caughtStealing;
 	}
 	
 	public void setOutData(float strikeOuts, float groundOuts, float flyOuts, float gidp, float gidp_opp) {
