@@ -78,6 +78,11 @@ public class SimulationState extends FunctionState
 	
 	private FunctionResult preParlaySim() {
     	Lineups lineups = ApiQuery.getLineups(simGame.gameId);
+    	if (lineups == null) {
+    		System.out.println("Press any key to continue...");
+    		this.getManager().getScanner().nextLine();
+    		return new FunctionResult(App.MAIN_STATE);
+    	}
     	
     	System.out.println("getting team statistics....");
     	Team homeTeam = new Team(StateVar.HOME, lineups.homeLineup);

@@ -343,7 +343,7 @@ public class ApiQuery
 		}
 		in.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println("ERROR: Looks like the full lineups for this game have not been posted!");
 			return null;
 		}
 		
