@@ -25,6 +25,7 @@ public class Simularity
 		private PitcherStats homePitcherStats;
 		
 		private FinalBoxScore(CurrentGameData gameData) {
+			this.gameStats = gameData.gameStats;
 			this.awayBatterStats = gameData.awayBatterStats;
 			this.homeBatterStats = gameData.homeBatterStats;
 			this.awayPitcherStats = gameData.awayPitcherStats;
@@ -146,14 +147,14 @@ public class Simularity
 	
 	private void loadDatabank() throws Exception{
 		try {
-			System.out.println("Loading databank file...  ");
+			System.out.print("Loading databank file...  ");
 			BufferedReader reader = new BufferedReader(new FileReader(OUTCOME_SAVE_FILE));
 			String data = reader.readLine();
-			Type parlayListType = new TypeToken<ArrayList<Parlay>>() {}.getType();
-			allOutcomePairs = gson.fromJson(data, parlayListType);
+			Type outcomeMapType = new TypeToken<Map<String, PredictionOutcomePair>>() {}.getType();
+			allOutcomePairs = gson.fromJson(data, outcomeMapType);
 
 			reader.close();
-			System.out.print("DONE!");
+			System.out.println("DONE!");
 			
 			
 		} catch (Exception e) {

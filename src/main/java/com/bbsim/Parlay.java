@@ -124,8 +124,11 @@ public class Parlay
 		}
 	}
 	
-	public void printStatus(CurrentGameData gameData) {
-		isStillAlive = true;
+	public void printStatus(CurrentGameData gameData, boolean printDead) {
+		if (!printDead && !isStillAlive) {
+			return;
+		}
+		
 		System.out.println(App.centerText(game.awayTeam + " " + gameData.gameStats.awayScore + " @ " + gameData.gameStats.homeScore + " " + game.homeTeam, false, true));
 		if (gameData.isGameLive) {
 			System.out.println(App.centerText(gameData.gameStats.liveStatus, false, true));

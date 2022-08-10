@@ -32,6 +32,8 @@ public class MainState extends ScreenState
 	List<CurrentGameData> gameData;
 	Gson gson;
 	
+	private boolean showLostParlays = true;
+	
 	private boolean isUpdating;
 	private Timer timer;
 	private UpdateTask updateTask;
@@ -91,7 +93,7 @@ public class MainState extends ScreenState
 			System.out.println(App.centerText("type 'add' to create a parlay", false, true));
 		} else {
 			for (int i = 0; i < parlays.size(); i++) {
-				parlays.get(i).printStatus(gameData.get(i));
+				parlays.get(i).printStatus(gameData.get(i), showLostParlays);
 			}
 		}
 		
@@ -99,6 +101,11 @@ public class MainState extends ScreenState
 		System.out.println(App.leftJustifyText(StringUtils.leftPad("'add'", 10) + "- add a parlay", 2, true));
 		System.out.println(App.leftJustifyText(StringUtils.leftPad("'edit'", 10) + "- edit a parlay", 2, true));
 		System.out.println(App.leftJustifyText(StringUtils.leftPad("'update'", 10) + "- force update live data", 2, true));
+		if (showLostParlays) {	
+			System.out.println(App.leftJustifyText(StringUtils.leftPad("'hideLost'", 10) + "- hide lost parlays", 2, true));
+		} else {
+			System.out.println(App.leftJustifyText(StringUtils.leftPad("'showLost'", 10) + "- show lost parlays", 2, true));
+		}
 		System.out.println(App.leftJustifyText(StringUtils.leftPad("'clearAll'", 10) + "- delete all parlays", 2, true));
 		System.out.println(App.leftJustifyText(StringUtils.leftPad("'quit'", 10) + "- exit program", 2, true));
 		System.out.println(App.TABLE_END_LINE);
@@ -116,12 +123,12 @@ public class MainState extends ScreenState
 				clearAllParlays();
 			}
 			return;
-		} else if ("clearLost".equals(input)) {
-			System.out.println("Are you sure you want to remove lost parlays? (y/n)");
-			String answer = this.getManager().getScanner().nextLine();
-			if ("y".equals(answer)) {
-				clearLostParlays();
-			}
+		} else if ("hideLost".equals(input)) {
+			hideLostParlays();
+			return;
+		} else if ("showLost".equals(input)) {
+			showLostParlays();
+			return;
 		} else if ("edit".equals(input)) {
 			this.changeState(App.PARLAY_PICKER_STATE, parlays);
 			return;
@@ -162,25 +169,12 @@ public class MainState extends ScreenState
 		saveParlaysToFile();
 	}
 	
-	private void clearLostParlays() {
-		List<Parlay> toDelete = new ArrayList<>();
-		List<CurrentGameData> cgdToDelete = new ArrayList<>();
-		for (int i = 0; i < parlays.size(); i++) {
-			if (parlays.get(i).isDead()) {
-				toDelete.add(parlays.get(i));
-				cgdToDelete.add(gameData.get(i));
-				System.out.println("would delete: " + i);
-			}
-		}
-		
-		for (Parlay p : toDelete) {
-			parlays.remove(p);
-		}
-		for (CurrentGameData cgd : cgdToDelete) {
-			gameData.remove(cgd);
-		}
-		
-		saveParlaysToFile();
+	private void hideLostParlays() {
+		this.showLostParlays = false;
+	}
+	
+	private void showLostParlays() {
+		this.showLostParlays = true;
 	}
 	
 	private void saveParlaysToFile() {
