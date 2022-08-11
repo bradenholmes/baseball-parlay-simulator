@@ -130,6 +130,7 @@ public class Parlay
 		}
 		
 		System.out.println(App.centerText(game.awayTeam + " " + gameData.gameStats.awayScore + " @ " + gameData.gameStats.homeScore + " " + game.homeTeam, false, true));
+		System.out.println(App.centerText(game.awayRecord + "       " + game.homeRecord, false, true));
 		if (gameData.isGameLive) {
 			System.out.println(App.centerText(gameData.gameStats.liveStatus, false, true));
 		} else {

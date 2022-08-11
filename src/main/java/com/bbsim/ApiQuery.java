@@ -29,11 +29,15 @@ public class ApiQuery
 		public String homeTeam;
 		public String awayTeam;
 		public String gameId;
+		public String homeRecord;
+		public String awayRecord;
 		
-		public Game(String homeTeam, String awayTeam, String gameId) {
+		public Game(String homeTeam, String awayTeam, String gameId, String homeRecord, String awayRecord) {
 			this.homeTeam = homeTeam;
 			this.awayTeam = awayTeam;
 			this.gameId = gameId;
+			this.homeRecord = homeRecord;
+			this.awayRecord = awayRecord;
 		}
 		
 		public String toString() {
@@ -268,7 +272,11 @@ public class ApiQuery
 				String homeTeam = e.getElementsByClass("starting-lineups__team-name starting-lineups__team-name--home").text();
 				String awayTeam = e.getElementsByClass("starting-lineups__team-name starting-lineups__team-name--away").text();
 				
-				games.add(new Game(homeTeam, awayTeam, id));
+				Elements records = e.getElementsByClass("starting-lineups__team-record");
+				
+				
+				
+				games.add(new Game(homeTeam, awayTeam, id, records.get(1).text(), records.get(0).text()));
 			}
 
 			return games;
