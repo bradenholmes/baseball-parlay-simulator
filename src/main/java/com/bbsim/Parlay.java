@@ -6,7 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.bbsim.ApiQuery.Game;
+
 
 public class Parlay
 {
@@ -128,22 +131,20 @@ public class Parlay
 		if (!printDead && !isStillAlive) {
 			return;
 		}
-		
-		System.out.println(App.centerText(game.awayTeam + " " + gameData.gameStats.awayScore + " @ " + gameData.gameStats.homeScore + " " + game.homeTeam, false, true));
+		System.out.println(App.centerText(StringUtils.leftPad(game.awayTeam + " " + gameData.gameStats.awayScore, 25) + " @ " + StringUtils.rightPad(gameData.gameStats.homeScore + " " + game.homeTeam, 25), false, true));
 		System.out.println(App.centerText(game.awayRecord + "       " + game.homeRecord, false, true));
 		if (gameData.isGameLive) {
 			System.out.println(App.centerText(gameData.gameStats.liveStatus, false, true));
 		} else {
-			System.out.println(App.centerText("PREGAME", false, true));
+			System.out.println(App.centerText(game.startTime, false, true));
 		}
-		System.out.println(App.centerText("Actual odds: +" + this.sportsbookOdds, false, true));
 		
 		for (Bet b : bets) {
 			if (!b.printStatus(gameData)) {
 				isStillAlive = false;
 			}
 		}
-		System.out.println(App.centerText("Expected win rate: " + App.percentage(expectedWinRate), false, true));
+		System.out.println(App.centerText("My win rate: " + App.percentage(expectedWinRate) + "    FanDuel odds: +" + this.sportsbookOdds + " (" + App.percentage(100f / this.sportsbookOdds) +")", false, true));
 		System.out.println(App.TABLE_HORIZ_LINE);
 	}
 }

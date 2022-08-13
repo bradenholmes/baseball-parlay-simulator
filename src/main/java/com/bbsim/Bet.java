@@ -294,7 +294,7 @@ public class Bet implements Comparable<Bet>
 				if (bDat == null) {
 					boxes = unknownBoxes(1);
 				} else {
-					boxes = fillBoxes(1, bDat.totalBases, bDat.stillPlaying);
+					boxes = fillBoxes(1, bDat.hits, bDat.stillPlaying);
 				}
 				break;
 			case TWO_HIT:
@@ -304,7 +304,7 @@ public class Bet implements Comparable<Bet>
 				if (bDat == null) {
 					boxes = unknownBoxes(2);
 				} else {
-					boxes = fillBoxes(2, bDat.totalBases, bDat.stillPlaying);
+					boxes = fillBoxes(2, bDat.hits, bDat.stillPlaying);
 				}
 				break;
 			case TWO_BASES:
@@ -334,7 +334,7 @@ public class Bet implements Comparable<Bet>
 				if (bDat == null) {
 					boxes = unknownBoxes(1);
 				} else {
-					boxes = fillBoxes(1, bDat.totalBases, bDat.stillPlaying);
+					boxes = fillBoxes(1, bDat.homers, bDat.stillPlaying);
 				}
 				break;
 			case RBI:
@@ -344,7 +344,7 @@ public class Bet implements Comparable<Bet>
 				if (bDat == null) {
 					boxes = unknownBoxes(1);
 				} else {
-					boxes = fillBoxes(1, bDat.totalBases, bDat.stillPlaying);
+					boxes = fillBoxes(1, bDat.rbi, bDat.stillPlaying);
 				}
 				break;
 			case RUN:
@@ -354,7 +354,7 @@ public class Bet implements Comparable<Bet>
 				if (bDat == null) {
 					boxes = unknownBoxes(1);
 				} else {
-					boxes = fillBoxes(1, bDat.totalBases, bDat.stillPlaying);
+					boxes = fillBoxes(1, bDat.runs, bDat.stillPlaying);
 				}
 				break;
 			default:

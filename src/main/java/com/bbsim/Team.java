@@ -2,11 +2,10 @@ package com.bbsim;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
-import com.bbsim.ApiQuery.BattingSplit;
 import com.bbsim.ApiQuery.TeamLineup;
+import com.bbsim.state.StateManager;
 import com.google.gson.JsonObject;
 
 
@@ -103,7 +102,21 @@ public class Team
 		pitcher.setHandedness(handed);
 		if (pitchingStats == null || pitchingStats.get("gs").getAsFloat() < MINIMUM_STARTS) {
 			if (pitchingStats == null) {
-				System.out.println("NOTE: " + pitcher.getName() + "'s stats could not be found! Check handedness....");
+				System.out.println("NOTE: " + pitcher.getName() + "'s stats could not be found! Is he a 'LHP' or 'RHP'?");
+				boolean entered = false;
+				while(!entered) {
+				
+					String input = StateManager.get().getScanner().nextLine();
+					if ("LHP".equals(input)) {
+						pitcher.setHandedness(StateVar.LEFTY);
+						entered = true;
+					} else if ("RHP".equals(input)) {
+						pitcher.setHandedness(StateVar.RIGHTY);
+						entered = true;
+					} else {
+						System.out.println("Please enter 'LHP' or 'RHP'");
+					}
+				}
 			} else {
 				System.out.println("NOTE: " + pitcher.getName() + " has only " + pitchingStats.get("gs").getAsInt() + " starts. His stats will not be included!");
 			}

@@ -45,7 +45,6 @@ public class MainState extends ScreenState
 		parlays = new ArrayList<>();
 		gameData = new ArrayList<>();
 		
-		timer = new Timer();
 		updateTask = new UpdateTask(this, gameData);
 		
 		loadParlaysFromFile();
@@ -195,9 +194,13 @@ public class MainState extends ScreenState
 	private void loadParlaysFromFile() {
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(PARLAY_SAVE_FILE));
-			String data = reader.readLine();
+			StringBuilder sb = new StringBuilder();
+			String line;
+			while ((line = reader.readLine()) != null) {
+				sb.append(line);
+			}
 			Type parlayListType = new TypeToken<ArrayList<Parlay>>() {}.getType();
-			parlays = gson.fromJson(data, parlayListType);
+			parlays = gson.fromJson(sb.toString(), parlayListType);
 			
 			for (Parlay p : parlays) {
 				p.initialize();

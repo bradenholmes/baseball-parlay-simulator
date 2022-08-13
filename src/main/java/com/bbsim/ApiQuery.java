@@ -31,13 +31,29 @@ public class ApiQuery
 		public String gameId;
 		public String homeRecord;
 		public String awayRecord;
+		public String startTime;
 		
-		public Game(String homeTeam, String awayTeam, String gameId, String homeRecord, String awayRecord) {
+		public Game(String homeTeam, String awayTeam, String gameId, String homeRecord, String awayRecord, String startTime) {
 			this.homeTeam = homeTeam;
 			this.awayTeam = awayTeam;
 			this.gameId = gameId;
 			this.homeRecord = homeRecord;
 			this.awayRecord = awayRecord;
+			
+			try {
+				int startHour = Integer.parseInt(StringUtils.substringBefore(startTime, ":"));
+				String startMin = StringUtils.left(StringUtils.substringAfter(startTime, ":"), 2);
+				String ampm = StringUtils.right(startTime, 2);
+				startHour = startHour - 2;
+				if (startHour < 1) {
+					startHour += 12;
+					ampm = "AM";
+				}
+				
+				this.startTime = startHour + ":" + startMin + " " + ampm;
+			} catch (Exception e) {
+				this.startTime = "";
+			}
 		}
 		
 		public String toString() {
@@ -274,9 +290,9 @@ public class ApiQuery
 				
 				Elements records = e.getElementsByClass("starting-lineups__team-record");
 				
+				String startTime = e.getElementsByClass("starting-lineups__game-date-time").get(0).text();
 				
-				
-				games.add(new Game(homeTeam, awayTeam, id, records.get(1).text(), records.get(0).text()));
+				games.add(new Game(homeTeam, awayTeam, id, records.get(1).text(), records.get(0).text(), startTime));
 			}
 
 			return games;

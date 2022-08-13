@@ -6,6 +6,8 @@ import java.util.Scanner;
 
 public class StateManager
 {
+	private static StateManager instance = null;
+	
 	private Scanner scanner;
 	
 	private boolean running = false;
@@ -14,9 +16,17 @@ public class StateManager
 	
 	private boolean didStateChange = false;
 	
-	public StateManager() {
+	private StateManager() {
 		scanner = new Scanner(System.in);
 		states = new HashMap<>();
+	}
+	
+	public static StateManager get() {
+		if (instance == null) {
+			instance = new StateManager();
+		}
+		
+		return instance;
 	}
 	
 	/**

@@ -38,7 +38,7 @@ public class App
     }
     
     public static void start() {
-    	StateManager manager = new StateManager();
+    	StateManager manager = StateManager.get();
     	manager.addState(MAIN_STATE, new MainState());
     	manager.addState(GAME_PICKER_STATE, new GamePickerState(ApiQuery.getAllGames()));
     	manager.addState(PARLAY_BUILDER_STATE, new ParlayBuilderState());
