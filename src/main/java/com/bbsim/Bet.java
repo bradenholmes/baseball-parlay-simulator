@@ -478,9 +478,46 @@ public class Bet implements Comparable<Bet>
 			return "";
 		}
 		for (int i = 0; i < boxes.length; i++) {
+			char boxVal = boxes[i];
+			
+			String txColor;
+			String bgColor;
+			switch (boxVal) {
+				case CHECK:
+					txColor = Constants.ANSI_WHITE;
+					bgColor = Constants.ANSI_GREEN_BACKGROUND;
+					break;
+				case FAIL:
+					txColor = Constants.ANSI_WHITE;
+					bgColor = Constants.ANSI_RED_BACKGROUND;
+					break;
+				case WINNING_NOW:
+					txColor = Constants.ANSI_BLACK;
+					bgColor = Constants.ANSI_CYAN;
+					break;
+				case LOSING_NOW:
+					txColor = Constants.ANSI_WHITE;
+					bgColor = Constants.ANSI_PURPLE_BACKGROUND;
+					break;
+				case QUESTION:
+					txColor = Constants.ANSI_BLACK;
+					bgColor = Constants.ANSI_YELLOW_BACKGROUND;
+					break;
+				default:
+					txColor = Constants.ANSI_WHITE;
+					bgColor = Constants.ANSI_BLACK_BACKGROUND;
+					break;
+			}
+			
+			sb.append(bgColor);
+			sb.append(Constants.ANSI_WHITE);
 			sb.append("[");
+			sb.append(txColor);
 			sb.append(boxes[i]);
+			sb.append(Constants.ANSI_WHITE);
 			sb.append("]");
+			sb.append(Constants.ANSI_RESET);
+			
 			sb.append(" ");
 		}
 		

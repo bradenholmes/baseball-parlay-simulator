@@ -19,6 +19,10 @@ public class SimulationData
 			avgRuns = runs / simulations;
 		}
 		
+		public float getWinPct() {
+			return winPct;
+		}
+		
 	}
 	
 	public class BatterData {
@@ -41,15 +45,59 @@ public class SimulationData
 		public String toString() {
 			
 			if (!batter.shouldInclude()) {
-				return StringUtils.leftPad(batter.getName(), 17) + "  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  - ";
+				return  StringUtils.leftPad(batter.getName(), 17) + Constants.ANSI_RED + "  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  - " + Constants.ANSI_RESET;
 			}
 			
-			return StringUtils.leftPad(batter.getName(), 17) 
-					+ "  Hits: " + App.decimal(avgHits) 
-					+ "   Bases: " + App.decimal(avgBases) 
-					+ "   Homers: " + App.decimal(avgHomers) 
-					+ "   RBI: " + App.decimal(avgRBI) 
-					+ "   Runs: " + App.decimal(avgRuns);
+			StringBuilder sb = new StringBuilder();
+			sb.append(StringUtils.leftPad(batter.getName(), 17));
+			
+			sb.append("  Hits: ");
+			if (avgHits >= 1) {
+				sb.append(Constants.ANSI_GREEN);
+			} else if (avgHits > 0.9f) {
+				sb.append(Constants.ANSI_YELLOW);
+			}
+			sb.append(App.decimal(avgHits));
+			sb.append(Constants.ANSI_RESET);
+			
+			sb.append("   Bases: ");
+			if (avgBases >= 2) {
+				sb.append(Constants.ANSI_GREEN);
+			} else if (avgBases > 1.9f) {
+				sb.append(Constants.ANSI_YELLOW);
+			}
+			sb.append(App.decimal(avgBases));
+			sb.append(Constants.ANSI_RESET);
+			
+			sb.append("   Homers: ");
+			if (avgHomers >= 1) {
+				sb.append(Constants.ANSI_GREEN);
+			} else if (avgHomers > 0.5f) {
+				sb.append(Constants.ANSI_YELLOW);
+			}
+			sb.append(App.decimal(avgHomers));
+			sb.append(Constants.ANSI_RESET);
+			
+			sb.append("   RBI: ");
+			if (avgRBI >= 1) {
+				sb.append(Constants.ANSI_GREEN);
+			} else if (avgRBI > 0.65f) {
+				sb.append(Constants.ANSI_YELLOW);
+			}
+			sb.append(App.decimal(avgRBI));
+			sb.append(Constants.ANSI_RESET);
+			
+			sb.append("   Runs: ");
+			if (avgRuns >= 1) {
+				sb.append(Constants.ANSI_GREEN);
+			} else if (avgRuns > 0.5f) {
+				sb.append(Constants.ANSI_YELLOW);
+			}
+			sb.append(App.decimal(avgRuns));
+			sb.append(Constants.ANSI_RESET);
+			
+			
+			return sb.toString();
 		}
 	}
 	

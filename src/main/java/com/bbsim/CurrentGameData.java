@@ -115,6 +115,7 @@ public class CurrentGameData
 	public PitcherStats homePitcherStats;
 	
 	public boolean isGameLive = false;
+	public boolean isGameFinished = false;
 	
 
 	
@@ -164,7 +165,7 @@ public class CurrentGameData
 	public void update(WebDriver driver) {
 		try {
 			Wait<WebDriver> wait = new FluentWait<WebDriver>(driver)
-					.withTimeout(Duration.ofSeconds(3))
+					.withTimeout(Duration.ofMillis(1000))
 					.pollingEvery(Duration.ofMillis(500))
 					.ignoring(NoSuchElementException.class);
 
@@ -202,12 +203,25 @@ public class CurrentGameData
 			
 			if ("FINAL".equals(gameStats.liveStatus)) {
 				Simularity.saveFinalScore(this);
+				endGame();
 			}
 
 			
 		} catch (Throwable enve) {
 			isGameLive = false;
 		}
+	}
+	
+	private void endGame() {
+		awayPitcherStats.endGame();
+		homePitcherStats.endGame();
+		for (BatterStats bs : awayBatterStats) {
+			bs.endGame();
+		}
+		for (BatterStats bs : homeBatterStats) {
+			bs.endGame();
+		}
+		isGameFinished = true;
 	}
 	
 	private void extractBatterData(Element table, BatterStats[] result) {

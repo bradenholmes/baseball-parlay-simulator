@@ -1,8 +1,14 @@
 package com.bbsim.state;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.bbsim.App;
 
 public class StateManager
 {
@@ -95,22 +101,109 @@ public class StateManager
 		}
     }
     
-    public int getIntegerInput(int min, int max) {
+    public boolean askConfirmation(String questionString) {
+		System.out.println(questionString + " (y/n)");
+		String answer = scanner.nextLine();
+		if (StringUtils.equalsIgnoreCase("y", answer)) {
+			return true;
+		} else {
+			return false;
+		}
+    }
+    
+    public int getIntegerInput(int min, int max, boolean optional) {
     	int value = 0;
     	boolean gotten = false;
     	while(!gotten) {
     		String in = scanner.nextLine();
     		try {
-    			int v = Integer.parseInt(in);
-    			if (v >= min && v < max) {
-    				value = v;
-    				gotten = true;
-    			}
+    			value = handleIntegerInput(in, min, max, optional);
+    			gotten = true;
     		} catch (Exception e) {
-    			System.out.println("Please enter an integer!");
+    			System.out.println("Please enter an integer between " + min + " and " + (max - 1));
     		}
     	}
     	
     	return value;
+    }
+    
+    public List<Integer> getManyIntegerInput(int minVal, int maxVal, boolean optional) {
+    	List<Integer> values = new ArrayList<>();
+    	
+    	boolean gotten = false;
+    	while(!gotten) {
+    		String in = scanner.nextLine();
+    		try {
+    			values = handleManyIntegerInput(in, minVal, maxVal, optional);
+    			gotten = true;
+    		} catch (Exception e) {
+    			System.out.println("Please enter integers between " + minVal + " and " + (maxVal - 1) + ", separated by spaces. e.g '2 4 6 8'");
+    			if (optional) {
+    				System.out.println("Or type 'back'");
+    			}
+    		}
+    	}
+    	
+    	return values;
+    }
+    
+    public int handleIntegerInput(String input, int min, int max, boolean optional) throws Exception {
+    	if (StringUtils.equalsIgnoreCase("help", input)) {
+    		System.out.print("Type an integer between " + min + " and " + (max - 1) + " and press enter");
+    		if (optional) {
+    			System.out.println(", or type 'back'");
+    		}
+    		return handleIntegerInput(scanner.nextLine(), min, max, optional);
+    	}
+		if (optional && isValidOptionalString(input)) {
+			return App.UNSET_INT;
+		}
+		try {
+			int v = Integer.parseInt(input);
+			if (v >= min && v < max) {
+				return v;
+			} else {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			throw e;
+		}
+    }
+    
+    public List<Integer> handleManyIntegerInput(String input, int minVal, int maxVal, boolean optional) throws Exception {
+    	if (StringUtils.equalsIgnoreCase("help", input)) {
+			System.out.println("Enter integers between " + minVal + " and " + (maxVal - 1) + ", separated by spaces. e.g '2 4 6 8'");
+			if (optional) {
+				System.out.println("Or type 'back'");
+			}
+    		return handleManyIntegerInput(scanner.nextLine(), minVal, maxVal, optional);
+    	}
+    	
+    	if (optional && isValidOptionalString(input) ) {
+    		return null;
+    	}
+    	
+    	List<Integer> values = new ArrayList<>();
+		String[] vals = StringUtils.split(input, ' ');
+		for (int i = 0; i < vals.length; i++) {
+			int v = Integer.parseInt(vals[i]);
+			if (v >= minVal && v < maxVal) {
+				values.add(v);
+			} else {
+				throw new Exception();
+			}
+		}
+		
+		return values;
+    }
+    
+    private boolean isValidOptionalString(String input) {
+    	if (StringUtils.isEmpty(input)) {
+    		return true;
+    	} else if (StringUtils.equalsIgnoreCase("back", input)) {
+    		return true;
+    	} else {
+    		return false;
+    	}
     }
 }

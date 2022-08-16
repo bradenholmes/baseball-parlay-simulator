@@ -15,6 +15,7 @@ import org.openqa.selenium.chrome.ChromeDriverLogLevel;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import com.bbsim.App;
+import com.bbsim.Constants;
 import com.bbsim.CurrentGameData;
 import com.bbsim.Parlay;
 import com.bbsim.Simularity;
@@ -117,9 +118,7 @@ public class MainState extends ScreenState
 			this.changeState(App.GAME_PICKER_STATE);
 			return;
 		} else if ("clearAll".equals(input)) {
-			System.out.println("Are you sure you want to remove all?? (y/n)");
-			String answer = this.getManager().getScanner().nextLine();
-			if ("y".equals(answer)) {
+			if (this.getManager().askConfirmation("Are you sure you want to remove all parlays?")) {
 				clearAllParlays();
 			}
 			return;

@@ -1,5 +1,6 @@
 package com.bbsim;
 
+import org.apache.commons.lang3.StringUtils;
 
 import com.bbsim.state.StateManager;
 import com.bbsim.state.impl.BetClassState;
@@ -15,6 +16,8 @@ import com.bbsim.state.impl.SimulationState;
 
 public class App 
 {
+	public static final int UNSET_INT = -1234567;
+	
 	public static final int LINE_WIDTH = 90;
 	public static final String TABLE_END_LINE =   "------------------------------------------------------------------------------------------";
 	public static final String TABLE_HORIZ_LINE = "|----------------------------------------------------------------------------------------|";
@@ -62,8 +65,11 @@ public class App
     }
     
     public static String centerText(String text, boolean fillDashes, boolean tableWalls) {
+    	
+
+    	
     	StringBuilder sb = new StringBuilder();
-    	int len = text.length();
+    	int len = text.length() - countFormatCharLength(text);
     	int space = LINE_WIDTH - len;
     	int leftPad = space / 2;
     	int rightPad = space - leftPad;
@@ -101,7 +107,7 @@ public class App
     
     public static String leftJustifyText(String text, int indentSize, boolean tableWalls) {
     	StringBuilder sb = new StringBuilder();
-    	int len = text.length();
+    	int len = text.length() - countFormatCharLength(text);
     	int space = LINE_WIDTH - len - indentSize - 2;
     	
     	
@@ -126,7 +132,7 @@ public class App
     
     public static String rightJustifyText(String text, int indentSize, boolean tableWalls) {
     	StringBuilder sb = new StringBuilder();
-    	int len = text.length();
+    	int len = text.length() - countFormatCharLength(text);
     	int space = LINE_WIDTH - len - indentSize - 2;
     	
     	
@@ -155,5 +161,17 @@ public class App
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+    }
+    
+    private static int countFormatCharLength(String text) {
+    	int formatCharLength = 0;
+    	String[] formatChars = StringUtils.substringsBetween(text, "\u001B", "m");
+    	if (formatChars != null) {
+	    	for (String s : formatChars) {
+	    		formatCharLength += s.length() + 2;
+	    	}
+    	}
+    	
+    	return formatCharLength;
     }
 }

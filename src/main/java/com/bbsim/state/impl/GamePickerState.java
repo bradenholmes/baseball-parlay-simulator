@@ -21,7 +21,7 @@ public class GamePickerState extends ScreenState
 		this.clearConsole();
 		System.out.println("Select a game: ");
 		for (int i = 0; i < allGames.size(); i++) {
-			System.out.println(StringUtils.leftPad("    " + i + ".) ", 8) + allGames.get(i).toString());
+			System.out.println(StringUtils.leftPad("  " + i + ".) ", 8) + allGames.get(i).toString());
 		}
 	}
 
@@ -37,27 +37,37 @@ public class GamePickerState extends ScreenState
 
 	@Override
 	public void handleInput(String input) {
-		if ("help".equals(input)) {
-			System.out.println("Enter a number to choose a game, or type 'back' to go back.");
-		}
-		else if ("back".equals(input)) {
-			this.changeState(App.MAIN_STATE);
-			return;
-		} else {
-			try {
-				int number = Integer.parseInt(input);
-				if (number >= 0 && number < allGames.size()) {
-					this.changeState(App.SIMULATION_STATE, allGames.get(number));
-					return;
-				} else {
-					System.out.println("Game of index " + number + " does not exist!");
+		try {
+			int number = this.getManager().handleIntegerInput(input, 0, allGames.size(), true);
+			if (number == App.UNSET_INT) {
+				this.changeState(App.MAIN_STATE);
+				return;
+			} else {
+				Game g = allGames.get(number);
+				if (this.getManager().askConfirmation("Would you like to run moneyline analysis?")) {
+					boolean gotten = false;
+					while (!gotten) {
+						System.out.println("Enter odds for " + g.awayTeam);
+						int awayOdds = this.getManager().getIntegerInput(-500, 500, false);
+						System.out.println("Enter odds for " + g.homeTeam);
+						int homeOdds = this.getManager().getIntegerInput(-500, 500, false);
+						
+						if (Math.signum(awayOdds) == Math.signum(homeOdds)) {
+							System.out.println("These are both " + (Math.signum(awayOdds) == 1 ? "positive" : "negative") + "... let's try that again");
+						} else {
+							g.setMoneylineOdds(homeOdds, awayOdds);
+							gotten = true;
+						}
+					}
 				}
 				
-				
-			} catch (Exception e) {
-				System.out.println("Unrecognized input!");
+				this.changeState(App.SIMULATION_STATE, allGames.get(number));
+				return;
 			}
 			
+			
+		} catch (Exception e) {
+			System.out.println("Unrecognized input!");
 		}
 	}
 

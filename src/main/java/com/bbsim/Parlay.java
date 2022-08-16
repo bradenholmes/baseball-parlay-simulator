@@ -16,7 +16,7 @@ public class Parlay
 	Game game;
 	List<Bet> bets;
 	float expectedWinRate;
-	int sportsbookOdds;
+	int sportsbookOdds = App.UNSET_INT;
 	boolean isStillAlive;
 	
 	
@@ -123,7 +123,11 @@ public class Parlay
 		}
 		if (expectedWinRate != -1) {
 			System.out.println(App.TABLE_EMPTY_LINE);
-			System.out.println(App.leftJustifyText("Parlay win rate: " + App.percentage(expectedWinRate), 2, true));
+			if (this.sportsbookOdds == App.UNSET_INT) {
+				System.out.println(App.centerText("Sim " + App.percentage(expectedWinRate), false, true));
+			} else {
+				System.out.println(App.centerText("Sim " + App.percentage(expectedWinRate) + " vs " +  App.percentage(100f / (100 + this.sportsbookOdds)) + " FD (+" + this.sportsbookOdds + ")", false, true)); 
+			}
 		}
 	}
 	
@@ -131,8 +135,8 @@ public class Parlay
 		if (!printDead && !isStillAlive) {
 			return;
 		}
-		System.out.println(App.centerText(StringUtils.leftPad(game.awayTeam + " " + gameData.gameStats.awayScore, 25) + " @ " + StringUtils.rightPad(gameData.gameStats.homeScore + " " + game.homeTeam, 25), false, true));
-		System.out.println(App.centerText(game.awayRecord + "       " + game.homeRecord, false, true));
+		System.out.println(App.centerText(StringUtils.center(game.awayTeam, 11) + " " + StringUtils.center(gameData.gameStats.awayScore + " @ " + gameData.gameStats.homeScore, 7) + " " + StringUtils.center(game.homeTeam, 11), false, true));
+		System.out.println(App.centerText(StringUtils.center(game.awayRecord, 11) + "         " + StringUtils.center(game.homeRecord, 11), false, true));
 		if (gameData.isGameLive) {
 			System.out.println(App.centerText(gameData.gameStats.liveStatus, false, true));
 		} else {
@@ -144,7 +148,8 @@ public class Parlay
 				isStillAlive = false;
 			}
 		}
-		System.out.println(App.centerText("My win rate: " + App.percentage(expectedWinRate) + "    FanDuel odds: +" + this.sportsbookOdds + " (" + App.percentage(100f / this.sportsbookOdds) +")", false, true));
+		System.out.println(App.centerText("Odds", false, true));
+		System.out.println(App.centerText("Sim " + App.percentage(expectedWinRate) + " vs " +  App.percentage(100f / (100 + this.sportsbookOdds)) + " FD (+" + this.sportsbookOdds + ")", false, true)); 
 		System.out.println(App.TABLE_HORIZ_LINE);
 	}
 }

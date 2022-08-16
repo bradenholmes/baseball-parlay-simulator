@@ -13,7 +13,7 @@ public class Team
 {
 	
 	private static final int MINIMUM_PAS = 50;
-	private static final int MINIMUM_STARTS = 2;
+	private static final int MINIMUM_STARTS = 1;
 	
 	private StateVar homeAway;
 	private String name;

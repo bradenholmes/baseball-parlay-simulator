@@ -9,8 +9,10 @@ import com.bbsim.App;
 import com.bbsim.Batter;
 import com.bbsim.Bet;
 import com.bbsim.BetClass;
+import com.bbsim.Pitcher;
 import com.bbsim.SimulationData;
 import com.bbsim.SimulationData.BatterData;
+import com.bbsim.Team;
 import com.bbsim.state.ScreenState;
 
 public class BetSubjectState extends ScreenState
@@ -90,70 +92,80 @@ public class BetSubjectState extends ScreenState
 			return;
 		}
 		
-		if (this.bet.getBetClass() == BetClass.TEAM) {
-			if ("1".equals(input)) {
-				bet.setSubject(simData.awayData.team, simData.homeData.team);
-				if (bet.requiresValue()) {
-					this.changeState(App.BET_VALUE_STATE, bet);
-					return;
-				} else {
-					this.changeState(App.PARLAY_BUILDER_STATE, bet);
-					return;
-				}
-			} else if ("2".equals(input)) {
-				bet.setSubject(simData.homeData.team, simData.awayData.team);
-				if (bet.requiresValue()) {
-					this.changeState(App.BET_VALUE_STATE, bet);
-					return;
-				} else {
-					this.changeState(App.PARLAY_BUILDER_STATE, bet);
-					return;
-				}
-			} else {
-				System.out.println("Please enter 1 or 2");
-			}
-		} else if (this.bet.getBetClass() == BetClass.PITCHER) {
-			if ("1".equals(input)) {
-				bet.setSubject(simData.awayPitcherData.pitcher);
-				if (bet.requiresValue()) {
-					this.changeState(App.BET_VALUE_STATE, bet);
-					return;
-				} else {
-					this.changeState(App.PARLAY_BUILDER_STATE, bet);
-					return;
-				}
-			} else if ("2".equals(input)) {
-				bet.setSubject(simData.homePitcherData.pitcher);
-				if (bet.requiresValue()) {
-					this.changeState(App.BET_VALUE_STATE, bet);
-					return;
-				} else {
-					this.changeState(App.PARLAY_BUILDER_STATE, bet);
-					return;
-				}
-			} else {
-				System.out.println("Please enter 1 or 2");
-			}
-		} else if (this.bet.getBetClass() == BetClass.BATTER) {
-			try {
+		try {
+			if (this.bet.getBetClass() == BetClass.TEAM) {
+				chooseTeamBet(input, simData.awayData.team, simData.homeData.team);
+				return;
+			} else if (this.bet.getBetClass() == BetClass.PITCHER) {
+				choosePitcherBet(input, simData.awayPitcherData.pitcher, simData.homePitcherData.pitcher);
+				return;
+			} else if (this.bet.getBetClass() == BetClass.BATTER) {
+	
 				List<Bet> batBets = new ArrayList<>();
-				String[] inputs = StringUtils.split(input, ' ');
-				for (int i = 0; i < inputs.length; i++) {
-					int idx = Integer.parseInt(inputs[i]);
+				List<Integer> inputs = this.getManager().handleManyIntegerInput(input, 0, batters.size(), true);
+				if (inputs == null) {
+					this.changeState(App.PARLAY_BUILDER_STATE);
+					return;
+				}
+				for (Integer in : inputs) {
 					Bet batBet = new Bet(bet.getBetClass(), bet.getBetType());
-					batBet.setSubject(batters.get(idx));
+					batBet.setSubject(batters.get(in));
 					batBets.add(batBet);
 				}
 				
 				this.changeState(App.PARLAY_BUILDER_STATE, batBets);
-
-			} catch (Exception e) {
-				System.out.println("Check your inputs and try again");
+				return;
 			}
+		} catch (Exception e) {
+			System.out.println("Check your inputs and try again");
+		}
+	}
+	
+	private void chooseTeamBet(String input, Team awayTeam, Team homeTeam) throws Exception {
+		
+		int inVal = this.getManager().handleIntegerInput(input, 1, 3, true);
+		
+		if (inVal == App.UNSET_INT) {
+			this.changeState(App.PARLAY_BUILDER_STATE);
+			return;
 		}
 		
+		if (inVal == 1) {
+			bet.setSubject(simData.awayData.team, simData.homeData.team);
+		} else if (inVal == 2) {
+			bet.setSubject(simData.homeData.team, simData.awayData.team);
+		}
 		
+		if (bet.requiresValue()) {
+			this.changeState(App.BET_VALUE_STATE, bet);
+			return;
+		} else {
+			this.changeState(App.PARLAY_BUILDER_STATE, bet);
+			return;
+		}
+	}
+	
+	private void choosePitcherBet(String input, Pitcher awayPitcher, Pitcher homePitcher) throws Exception {
+		int inVal = this.getManager().handleIntegerInput(input, 1, 3, true);
 		
+		if (inVal == App.UNSET_INT) {
+			this.changeState(App.PARLAY_BUILDER_STATE);
+			return;
+		}
+		
+		if (inVal == 1) {
+			bet.setSubject(simData.awayPitcherData.pitcher);
+		} else if (inVal == 2) {
+			bet.setSubject(simData.homePitcherData.pitcher);
+		}
+		
+		if (bet.requiresValue()) {
+			this.changeState(App.BET_VALUE_STATE, bet);
+			return;
+		} else {
+			this.changeState(App.PARLAY_BUILDER_STATE, bet);
+			return;
+		}
 	}
 
 }

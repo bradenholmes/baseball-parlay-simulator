@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.bbsim.App;
 import com.bbsim.Bet;
+import com.bbsim.Constants;
 import com.bbsim.Parlay;
 import com.bbsim.SimulationData;
 import com.bbsim.state.ScreenState;
@@ -15,6 +16,9 @@ public class ParlayBuilderState extends ScreenState
 {
 	SimulationData simData;
 	Parlay parlay;
+	
+	boolean awayMoneylineWinning;
+	boolean homeMoneylineWinning;
 	
 	@Override
 	public void init(Object... params) {
@@ -43,6 +47,23 @@ public class ParlayBuilderState extends ScreenState
 				}
 
 			}
+			
+			awayMoneylineWinning = false;
+			homeMoneylineWinning = false;
+			
+			if (simData.simGame.getAwayMoneylineReturn() != App.UNSET_INT) {
+				float mlReturn = (simData.awayData.getWinPct() * (100 * simData.simGame.getAwayMoneylineReturn())) - ((1 - simData.awayData.getWinPct()) * 100);
+				if (mlReturn > 0) {
+					awayMoneylineWinning = true;
+				}
+			}
+			if (simData.simGame.getHomeMoneylineReturn() != App.UNSET_INT) {
+				float mlReturn = (simData.homeData.getWinPct() * (100 * simData.simGame.getHomeMoneylineReturn())) - ((1 - simData.homeData.getWinPct()) * 100);
+				if (mlReturn > 0) {
+					homeMoneylineWinning = true;
+				}
+			}
+			
 
 		} else if (params[0] instanceof Bet) {
 			parlay.addBet((Bet) params[0]);
@@ -75,9 +96,20 @@ public class ParlayBuilderState extends ScreenState
 			System.out.println(App.TABLE_HORIZ_LINE);
 		}
 		
+		System.out.println(App.TABLE_EMPTY_LINE);
+		if (homeMoneylineWinning) {
+			System.out.println(App.centerText(Constants.ANSI_GREEN + simData.simGame.homeTeam + " moneyline is a winning bet!" + Constants.ANSI_RESET, false, true));
+			System.out.println(App.TABLE_EMPTY_LINE);
+		}
+		if (awayMoneylineWinning) {
+			System.out.println(App.centerText(Constants.ANSI_GREEN + simData.simGame.awayTeam + " moneyline is a winning bet!" + Constants.ANSI_RESET, false, true));
+			System.out.println(App.TABLE_EMPTY_LINE);
+		}
+		
 		System.out.println(App.TABLE_HORIZ_LINE);
 		System.out.println(App.centerText("GAME PARLAY", false, true));
 		System.out.println(App.TABLE_HORIZ_LINE);
+
 		if (parlay.isEmpty()) {
 			System.out.println(App.centerText("no bets :(", false, true));
 			System.out.println(App.centerText("Type 'add' to add a bet to this parlay, or 'discard'", false, true));
@@ -101,9 +133,7 @@ public class ParlayBuilderState extends ScreenState
 	@Override
 	public void handleInput(String input) {
 		if ("discard".equals(input)){
-			System.out.println("Are you sure you want to discard this parlay? (y/n)");
-			String answer = this.getManager().getScanner().nextLine();
-			if ("y".equals(answer)) {
+			if (this.getManager().askConfirmation("Are you sure you want to discard this parlay?")) {
 				this.changeState(App.MAIN_STATE);
 			}
 			return;
@@ -114,9 +144,11 @@ public class ParlayBuilderState extends ScreenState
 				Bet b = parlay.getBets().get(i);
 				System.out.println(StringUtils.leftPad("  " + i + ".) ", 8) + b.toString());
 			}
-			int choice = this.getManager().getIntegerInput(0, parlay.getBets().size());
-			Bet removeBet = parlay.getBets().get(choice);
-			parlay.removeBet(removeBet);
+			int choice = this.getManager().getIntegerInput(0, parlay.getBets().size(), true);
+			if (choice != App.UNSET_INT) {
+				Bet removeBet = parlay.getBets().get(choice);
+				parlay.removeBet(removeBet);
+			}
 			
 			return;
 			
@@ -129,11 +161,18 @@ public class ParlayBuilderState extends ScreenState
 			return;
 		} else if ("test".equals(input)) {
 			this.changeState(App.SIMULATION_STATE, simData, parlay, false);
+			System.out.println("Enter FanDuel odds: (or press enter to skip)");
+			int sbOdds = this.getManager().getIntegerInput(0, 100000, true);
+			if (sbOdds != App.UNSET_INT) {
+				parlay.setSportsbookOdds(sbOdds);
+			}
 			return;
 		} else if ("save".equals(input)) {
-			System.out.println("Please input actual odds from FanDuel: ");
-			int sbOdds = this.getManager().getIntegerInput(0, 100000);
-			parlay.setSportsbookOdds(sbOdds);
+			if (parlay.getSportsbookOdds() == App.UNSET_INT) {
+				System.out.println("Please input actual odds from FanDuel: ");
+				int sbOdds = this.getManager().getIntegerInput(0, 100000, true);
+				parlay.setSportsbookOdds(sbOdds);
+			}
 			this.changeState(App.SIMULATION_STATE, simData, parlay, true);
 			return;
 		} else {

@@ -32,6 +32,8 @@ public class ApiQuery
 		public String homeRecord;
 		public String awayRecord;
 		public String startTime;
+		private float homeMoneyline = App.UNSET_INT;
+		private float awayMoneyline = App.UNSET_INT;
 		
 		public Game(String homeTeam, String awayTeam, String gameId, String homeRecord, String awayRecord, String startTime) {
 			this.homeTeam = homeTeam;
@@ -44,16 +46,42 @@ public class ApiQuery
 				int startHour = Integer.parseInt(StringUtils.substringBefore(startTime, ":"));
 				String startMin = StringUtils.left(StringUtils.substringAfter(startTime, ":"), 2);
 				String ampm = StringUtils.right(startTime, 2);
-				startHour = startHour - 2;
-				if (startHour < 1) {
+				if ("PM".equalsIgnoreCase(ampm) && startHour != 12) {
 					startHour += 12;
+				}
+				startHour = startHour - 2;
+				if (startHour <= 12) {
 					ampm = "AM";
+				} else {
+					startHour -= 12;
 				}
 				
 				this.startTime = startHour + ":" + startMin + " " + ampm;
 			} catch (Exception e) {
 				this.startTime = "";
 			}
+		}
+		
+		public void setMoneylineOdds(int homeOdds, int awayOdds) {
+			if (homeOdds > 0) {
+				homeMoneyline = (float) homeOdds / 100f;
+			} else {
+				homeMoneyline = 100f / (float) -homeOdds;
+			}
+			
+			if (awayOdds > 0) {
+				awayMoneyline = (float) awayOdds / 100f;
+			} else {
+				awayMoneyline = 100f / (float) -awayOdds;
+			}
+		}
+		
+		public float getHomeMoneylineReturn() {
+			return homeMoneyline;
+		}
+		
+		public float getAwayMoneylineReturn() {
+			return awayMoneyline;
 		}
 		
 		public String toString() {
