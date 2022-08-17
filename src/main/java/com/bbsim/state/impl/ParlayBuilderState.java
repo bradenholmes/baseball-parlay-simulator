@@ -124,6 +124,7 @@ public class ParlayBuilderState extends ScreenState
 			System.out.println(App.leftJustifyText(StringUtils.leftPad("'remove'", 10) + "- remove a bet", 2, true));
 			System.out.println(App.leftJustifyText(StringUtils.leftPad("'test'", 10) + "- simulate parlay", 2, true));
 			System.out.println(App.leftJustifyText(StringUtils.leftPad("'save'", 10) + "- save parlay", 2, true));
+			System.out.println(App.leftJustifyText(StringUtils.leftPad("'money'", 10) + "- set a moneyline bet", 2, true));
 			System.out.println(App.leftJustifyText(StringUtils.leftPad("'discard'", 10) + "- discard parlay", 2, true));
 		}
 		
@@ -175,6 +176,18 @@ public class ParlayBuilderState extends ScreenState
 			}
 			this.changeState(App.SIMULATION_STATE, simData, parlay, true);
 			return;
+		} else if ("money".equals(input)) {
+			System.out.println("Place your moneyline bet on which team?");
+			System.out.println("  1. " + simData.awayData.team.getName());
+			System.out.println("  2. " + simData.homeData.team.getName());
+			int in = this.getManager().getIntegerInput(1, 3, true);
+			if (in != App.UNSET_INT) {
+				if (in == 1) {
+					parlay.placeAwayMoneyline();
+				} else if (in == 2) {
+					parlay.placeHomeMoneyline();
+				}
+			}
 		} else {
 			System.out.println("unknown input!");
 			return;

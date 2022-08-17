@@ -493,14 +493,14 @@ public class Bet implements Comparable<Bet>
 					break;
 				case WINNING_NOW:
 					txColor = Constants.ANSI_BLACK;
-					bgColor = Constants.ANSI_CYAN;
+					bgColor = Constants.ANSI_YELLOW_BACKGROUND;
 					break;
 				case LOSING_NOW:
 					txColor = Constants.ANSI_WHITE;
 					bgColor = Constants.ANSI_PURPLE_BACKGROUND;
 					break;
 				case QUESTION:
-					txColor = Constants.ANSI_BLACK;
+					txColor = Constants.ANSI_WHITE;
 					bgColor = Constants.ANSI_YELLOW_BACKGROUND;
 					break;
 				default:

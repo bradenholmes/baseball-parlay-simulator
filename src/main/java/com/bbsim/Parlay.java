@@ -17,6 +17,10 @@ public class Parlay
 	List<Bet> bets;
 	float expectedWinRate;
 	int sportsbookOdds = App.UNSET_INT;
+	
+	boolean awayMoneylinePlaced = false;
+	boolean homeMoneylinePlaced = false;
+	
 	boolean isStillAlive;
 	
 	
@@ -28,12 +32,22 @@ public class Parlay
 		this.game = game;
 		this.bets = new ArrayList<>();
 		this.expectedWinRate = -1;
+		this.awayMoneylinePlaced = false;
+		this.homeMoneylinePlaced = false;
 		this.isStillAlive = true;
 		betWins = new HashMap<>();
 	}
 	
 	public void setSportsbookOdds(int odds) {
 		this.sportsbookOdds = odds;
+	}
+	
+	public void placeAwayMoneyline() {
+		this.awayMoneylinePlaced = true;
+	}
+	
+	public void placeHomeMoneyline() {
+		this.homeMoneylinePlaced = true;
 	}
 	
 	public void addBet(Bet bet) {
@@ -117,7 +131,7 @@ public class Parlay
 	
 	public void print() {
 		Collections.sort(bets);
-		System.out.println(App.leftJustifyText("bets:", 2, true));
+		System.out.println(App.leftJustifyText("bets: " + bets.size() + " in parlay", 2, true));
 		for (Bet b : bets) {
 			b.print();
 		}
@@ -126,7 +140,14 @@ public class Parlay
 			if (this.sportsbookOdds == App.UNSET_INT) {
 				System.out.println(App.centerText("Sim " + App.percentage(expectedWinRate), false, true));
 			} else {
-				System.out.println(App.centerText("Sim " + App.percentage(expectedWinRate) + " vs " +  App.percentage(100f / (100 + this.sportsbookOdds)) + " FD (+" + this.sportsbookOdds + ")", false, true)); 
+				float sbOdds = 100f / (100 + this.sportsbookOdds);
+				String color;
+				if (expectedWinRate > sbOdds) {
+					color = Constants.ANSI_GREEN;
+				} else {
+					color = Constants.ANSI_WHITE;
+				}
+				System.out.println(App.centerText(color + "Sim " + App.percentage(expectedWinRate) + " vs " +  App.percentage(sbOdds) + " FD (+" + this.sportsbookOdds + ")" + Constants.ANSI_RESET, false, true)); 
 			}
 		}
 	}
@@ -135,10 +156,14 @@ public class Parlay
 		if (!printDead && !isStillAlive) {
 			return;
 		}
-		System.out.println(App.centerText(StringUtils.center(game.awayTeam, 11) + " " + StringUtils.center(gameData.gameStats.awayScore + " @ " + gameData.gameStats.homeScore, 7) + " " + StringUtils.center(game.homeTeam, 11), false, true));
+		
+		String awayTeamColor = awayMoneylinePlaced ? Constants.ANSI_GREEN : Constants.ANSI_WHITE;
+		String homeTeamColor = homeMoneylinePlaced ? Constants.ANSI_GREEN : Constants.ANSI_WHITE;
+		
+		System.out.println(App.centerText(awayTeamColor + StringUtils.center(game.awayTeam, 11) + Constants.ANSI_RESET + " " + StringUtils.center(gameData.gameStats.awayScore + " @ " + gameData.gameStats.homeScore, 7) + " " + homeTeamColor + StringUtils.center(game.homeTeam, 11) + Constants.ANSI_RESET, false, true));
 		System.out.println(App.centerText(StringUtils.center(game.awayRecord, 11) + "         " + StringUtils.center(game.homeRecord, 11), false, true));
 		if (gameData.isGameLive) {
-			System.out.println(App.centerText(gameData.gameStats.liveStatus, false, true));
+			System.out.println(App.centerText(Constants.ANSI_YELLOW + gameData.gameStats.liveStatus + Constants.ANSI_RESET, false, true));
 		} else {
 			System.out.println(App.centerText(game.startTime, false, true));
 		}
