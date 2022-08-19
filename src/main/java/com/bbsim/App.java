@@ -174,4 +174,15 @@ public class App
     	
     	return formatCharLength;
     }
+    
+    public static float convertSportsbookOdds(int sportsbookOdds) {
+    	float oddsComponent;
+		if (Math.signum(sportsbookOdds) == 1) {
+			oddsComponent = sportsbookOdds / 100f;
+		} else {
+			oddsComponent = 100f / -sportsbookOdds;
+		}
+		
+		return 1f / (1f + oddsComponent);
+    }
 }

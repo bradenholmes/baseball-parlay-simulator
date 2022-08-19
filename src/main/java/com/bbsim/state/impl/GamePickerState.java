@@ -44,6 +44,7 @@ public class GamePickerState extends ScreenState
 				return;
 			} else {
 				Game g = allGames.get(number);
+				/* FUCK THIS I KEEP LOSING MONEY
 				if (this.getManager().askConfirmation("Would you like to run moneyline analysis?")) {
 					boolean gotten = false;
 					while (!gotten) {
@@ -60,6 +61,7 @@ public class GamePickerState extends ScreenState
 						}
 					}
 				}
+				*/
 				
 				this.changeState(App.SIMULATION_STATE, allGames.get(number));
 				return;

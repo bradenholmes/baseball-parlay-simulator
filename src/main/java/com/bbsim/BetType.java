@@ -34,6 +34,14 @@ public enum BetType
 		return types;
 	}
 	
+	public static boolean isPlayerBet(BetType type) {
+		if (type == MONEY_LINE || type == RUN_LINE || type == RUNS_OVER || type == RUNS_UNDER || type == FIRST_INNING) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
 	public BetClass getBetClass() {
 		return betClass;
 	}

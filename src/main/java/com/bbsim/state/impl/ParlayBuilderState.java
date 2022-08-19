@@ -163,7 +163,7 @@ public class ParlayBuilderState extends ScreenState
 		} else if ("test".equals(input)) {
 			this.changeState(App.SIMULATION_STATE, simData, parlay, false);
 			System.out.println("Enter FanDuel odds: (or press enter to skip)");
-			int sbOdds = this.getManager().getIntegerInput(0, 100000, true);
+			int sbOdds = this.getManager().getIntegerInput(-10000, 100000, true);
 			if (sbOdds != App.UNSET_INT) {
 				parlay.setSportsbookOdds(sbOdds);
 			}
@@ -171,7 +171,7 @@ public class ParlayBuilderState extends ScreenState
 		} else if ("save".equals(input)) {
 			if (parlay.getSportsbookOdds() == App.UNSET_INT) {
 				System.out.println("Please input actual odds from FanDuel: ");
-				int sbOdds = this.getManager().getIntegerInput(0, 100000, true);
+				int sbOdds = this.getManager().getIntegerInput(-10000, 100000, true);
 				parlay.setSportsbookOdds(sbOdds);
 			}
 			this.changeState(App.SIMULATION_STATE, simData, parlay, true);

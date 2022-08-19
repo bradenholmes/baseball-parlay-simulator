@@ -140,7 +140,7 @@ public class Parlay
 			if (this.sportsbookOdds == App.UNSET_INT) {
 				System.out.println(App.centerText("Sim " + App.percentage(expectedWinRate), false, true));
 			} else {
-				float sbOdds = 100f / (100 + this.sportsbookOdds);
+				float sbOdds = App.convertSportsbookOdds(sportsbookOdds);
 				String color;
 				if (expectedWinRate > sbOdds) {
 					color = Constants.ANSI_GREEN;
@@ -174,7 +174,13 @@ public class Parlay
 			}
 		}
 		System.out.println(App.centerText("Odds", false, true));
-		System.out.println(App.centerText("Sim " + App.percentage(expectedWinRate) + " vs " +  App.percentage(100f / (100 + this.sportsbookOdds)) + " FD (+" + this.sportsbookOdds + ")", false, true)); 
+		String oddsString;
+		if (Math.signum(sportsbookOdds) == 1) {
+			oddsString = "+" + sportsbookOdds;
+		} else {
+			oddsString = "" + sportsbookOdds;
+		}
+		System.out.println(App.centerText("Sim " + App.percentage(expectedWinRate) + " vs " +  App.percentage(App.convertSportsbookOdds(sportsbookOdds)) + " FD (" + oddsString + ")", false, true)); 
 		System.out.println(App.TABLE_HORIZ_LINE);
 	}
 }

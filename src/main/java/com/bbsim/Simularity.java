@@ -31,6 +31,36 @@ public class Simularity
 			this.awayPitcherStats = gameData.awayPitcherStats;
 			this.homePitcherStats = gameData.homePitcherStats;
 		}
+		
+		public BatterStats getBatterStats(String id) {
+			for (BatterStats bs : awayBatterStats) {
+				if (bs.playerId.equals(id)) {
+					return bs;
+				}
+			}
+			for (BatterStats bs : homeBatterStats) {
+				if (bs.playerId.equals(id)) {
+					return bs;
+				}
+			}
+			
+			return null;
+		}
+		
+		public PitcherStats getPitcherStats(String id) {
+			if (awayPitcherStats.playerId.equals(id)) {
+				return awayPitcherStats;
+			}
+			if (homePitcherStats.playerId.equals(id)) {
+				return homePitcherStats;
+			}
+			
+			return null;
+		}
+		
+		public GameStats getGameStats() {
+			return gameStats;
+		}
 	}
 	
 	public class BetPredictions {
@@ -90,7 +120,7 @@ public class Simularity
 			this.boxScore = boxScore;
 		}
 	}
-	private static final String OUTCOME_SAVE_FILE = "/Programming/GameWorkspace/BaseballSimulator/simularityDatabank.json";
+	private static final String OUTCOME_SAVE_FILE = "/Programming/GameWorkspace/BaseballSimulator/data/simularityDatabank.json";
 	
 	private static Simularity instance = null;
 	
@@ -114,6 +144,10 @@ public class Simularity
 		return instance;
 	}
 	
+	public static float analyze() {
+		return get().calculateSimularity();
+	}
+	
 	public static void saveFinalScore(CurrentGameData gameData) {
 		get().saveScore(gameData);
 	}
@@ -124,6 +158,155 @@ public class Simularity
 	
 	public static void cleanup() {
 		get().cleanDatabank();
+	}
+	
+	private float calculateSimularity() {
+		float brierSum = 0;
+		float numPredictions = 0;
+		for (PredictionOutcomePair pair : allOutcomePairs.values()) {
+			for (SimpleBet bet : pair.betProbs.bets) {
+				float simProbability = bet.p;
+				float actual = didBetWin(bet, pair.boxScore);
+				
+				if (actual == -1) {
+					continue;
+				}
+				
+				brierSum += (simProbability - actual) * (simProbability - actual);
+				numPredictions++;
+				
+			}
+		}
+		
+		float brierScore = brierSum / numPredictions;
+		return (1 - brierScore);
+	}
+	
+	private float didBetWin(SimpleBet bet, FinalBoxScore boxScore) {
+		float result = 0;
+		
+		if (boxScore == null) {
+			return -1;
+		}
+		
+		PitcherStats pStats = null;
+		BatterStats bStats = null;
+		if (BetType.isPlayerBet(bet.t)) {
+			pStats = boxScore.getPitcherStats(bet.id);
+			bStats = boxScore.getBatterStats(bet.id);
+			if (pStats == null && bStats == null) {
+				return -1;
+			}
+		}
+		
+		switch (bet.t) {
+			case MONEY_LINE:
+				//not possible right now
+				break;
+			case RUN_LINE:
+				//not possible right now
+				break;
+			case RUNS_OVER:
+				if (boxScore.getGameStats().awayScore + boxScore.getGameStats().homeScore > bet.v) {
+					result = 1;
+				} else {
+					result = 0;
+				}
+				break;
+			case RUNS_UNDER:
+				if (boxScore.getGameStats().awayScore + boxScore.getGameStats().homeScore < bet.v) {
+					result = 1;
+				} else {
+					result = 0;
+				}
+				break;
+			case FIRST_INNING:
+				if (bet.v == FirstInningBet.ZERO_ZERO.ordinal()) {
+					if (boxScore.getGameStats().awayFirstScore == 0 && boxScore.getGameStats().homeFirstScore == 0) {
+						result = 1;
+					} else {
+						result = 0;
+					}
+				} else if (bet.v == FirstInningBet.AWAY_WIN.ordinal()) {
+					if (boxScore.getGameStats().awayFirstScore > boxScore.getGameStats().homeFirstScore) {
+						result = 1;
+					} else {
+						result = 0;
+					}
+				} else if (bet.v == FirstInningBet.TIE.ordinal()) {
+					if (boxScore.getGameStats().awayFirstScore == boxScore.getGameStats().homeFirstScore) {
+						result = 1;
+					} else {
+						result = 0;
+					}
+				} else if (bet.v == FirstInningBet.HOME_WIN.ordinal()) {
+					if (boxScore.getGameStats().awayFirstScore < boxScore.getGameStats().homeFirstScore) {
+						result = 1;
+					} else {
+						result = 0;
+					}
+				}
+				break;
+			case SO_OVER:
+				if (pStats.strikeouts >= bet.v) {
+					result = 1;
+				} else {
+					result = 0;
+				}
+				break;
+			case ONE_HIT:
+				if (bStats.hits >= 1) {
+					result = 1;
+				} else {
+					result = 0;
+				}
+				break;
+			case TWO_HIT:
+				if (bStats.hits >= 2) {
+					result = 1;
+				} else {
+					result = 0;
+				}
+				break;
+			case TWO_BASES:
+				if (bStats.totalBases >= 2) {
+					result = 1;
+				} else {
+					result = 0;
+				}
+				break;
+			case THREE_BASES:
+				if (bStats.totalBases >= 3) {
+					result = 1;
+				} else {
+					result = 0;
+				}
+				break;
+			case HOME_RUN:
+				if (bStats.homers >= 1) {
+					result = 1;
+				} else {
+					result = 0;
+				}
+				break;
+			case RBI:
+				if (bStats.rbi >= 1) {
+					result = 1;
+				} else {
+					result = 0;
+				}
+				break;
+			case RUN:
+				if (bStats.runs >= 1) {
+					result = 1;
+				} else {
+					result = 0;
+				}
+				break;
+		}
+		
+		
+		return result;
 	}
 	
 	private void saveScore(CurrentGameData gameData) {

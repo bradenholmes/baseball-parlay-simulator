@@ -28,7 +28,8 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class MainState extends ScreenState
 {
-	private static final String PARLAY_SAVE_FILE = "/Programming/GameWorkspace/BaseballSimulator/parlays.json";
+	private static final String PARLAY_SAVE_FILE = "/Programming/GameWorkspace/BaseballSimulator/data/parlays.json";
+	
 	
 	List<Parlay> parlays;
 	List<CurrentGameData> gameData;
@@ -39,6 +40,8 @@ public class MainState extends ScreenState
 	private boolean isUpdating;
 	private Timer timer;
 	private UpdateTask updateTask;
+	
+	private float simBrierScore = App.UNSET_INT;
 	
 	public MainState() {
 		WebDriverManager.chromedriver().setup();
@@ -89,6 +92,10 @@ public class MainState extends ScreenState
 		System.out.println(App.TABLE_END_LINE);
 		System.out.println(App.centerText("TODAY'S PARLAYS", false, true));
 		System.out.println(App.TABLE_HORIZ_LINE);
+		if (simBrierScore != App.UNSET_INT) {
+			System.out.println(App.centerText(Constants.ANSI_YELLOW + "Simularity Score: " + App.percentage(simBrierScore) + Constants.ANSI_RESET, false, true));
+			System.out.println(App.TABLE_HORIZ_LINE);
+		}
 		if (parlays.size() == 0) {
 			System.out.println(App.centerText("no active parlays :(", false, true));
 			System.out.println(App.centerText("type 'add' to create a parlay", false, true));
@@ -100,8 +107,9 @@ public class MainState extends ScreenState
 		
 		System.out.println(App.leftJustifyText("options:", 2, true));
 		System.out.println(App.leftJustifyText(StringUtils.leftPad("'add'", 10) + "- add a parlay", 2, true));
-		System.out.println(App.leftJustifyText(StringUtils.leftPad("'edit'", 10) + "- edit a parlay", 2, true));
+		System.out.println(App.leftJustifyText(StringUtils.leftPad("'remove'", 10) + "- delete a parlay", 2, true));
 		System.out.println(App.leftJustifyText(StringUtils.leftPad("'update'", 10) + "- force update live data", 2, true));
+		System.out.println(App.leftJustifyText(StringUtils.leftPad("'analyze'", 10) + "- run brier score analysis of simulation", 2, true));
 		if (showLostParlays) {	
 			System.out.println(App.leftJustifyText(StringUtils.leftPad("'hideLost'", 10) + "- hide lost parlays", 2, true));
 		} else {
@@ -128,12 +136,24 @@ public class MainState extends ScreenState
 		} else if ("showLost".equals(input)) {
 			showLostParlays();
 			return;
-		} else if ("edit".equals(input)) {
-			this.changeState(App.PARLAY_PICKER_STATE, parlays);
+		} else if ("remove".equals(input)) {
+			this.clearConsole();
+			System.out.println("Select a parlay: ");
+			for (int i = 0; i < parlays.size(); i++) {
+				System.out.println("    " + i + ".) " + parlays.get(i).getGame().toString());
+			}
+			int sel = this.getManager().getIntegerInput(0, parlays.size(), true);
+			if (sel != App.UNSET_INT) {
+				parlays.remove(sel);
+			}
 			return;
 		} else if ("update".equals(input)) {
 			updateAllGames();
 			return;
+		} else if ("analyze".equals(input)) {
+			System.out.println("analyzing...");
+			float res = Simularity.analyze();
+			this.simBrierScore = res;
 		} else if ("quit".equals(input)) {
 			timer.cancel();
 			getManager().killManager();
