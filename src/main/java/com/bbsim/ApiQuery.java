@@ -50,9 +50,12 @@ public class ApiQuery
 					startHour += 12;
 				}
 				startHour = startHour - 2;
-				if (startHour <= 12) {
-					ampm = "AM";
+				if (startHour >= 12) {
+					ampm = "PM";
 				} else {
+					ampm = "AM";
+				}
+				if (startHour > 12) {
 					startHour -= 12;
 				}
 				
