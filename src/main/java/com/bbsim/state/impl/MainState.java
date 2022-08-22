@@ -145,7 +145,9 @@ public class MainState extends ScreenState
 			int sel = this.getManager().getIntegerInput(0, parlays.size(), true);
 			if (sel != App.UNSET_INT) {
 				parlays.remove(sel);
+				gameData.remove(sel);
 			}
+			saveParlaysToFile();
 			return;
 		} else if ("update".equals(input)) {
 			updateAllGames();
