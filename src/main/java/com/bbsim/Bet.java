@@ -139,7 +139,12 @@ public class Bet implements Comparable<Bet>
 				//betString = "First inning " + FirstInningBet.ofOridinal((int)value);
 				break;
 			case SO_OVER:
-				if (pitcher.getSOs() > value) {
+				if (pitcher.getSOs() >= value) {
+					result = true;
+				}
+				break;
+			case SO_UNDER:
+				if (pitcher.getSOs() < value) {
 					result = true;
 				}
 				break;
@@ -216,6 +221,10 @@ public class Bet implements Comparable<Bet>
 					namePart = pitcher.getName();
 					valuePart = (int) value + "+ SO's";
 					break;
+				case SO_UNDER:
+					namePart = pitcher.getName();
+					valuePart = "Under" + String.format("%.1f", value) + " SO's";
+					break;
 				default:
 					namePart = "";
 					valuePart = "";
@@ -286,6 +295,22 @@ public class Bet implements Comparable<Bet>
 				valuePart = (int) value + "+ SO's";
 				pDat = gameData.getPitcherOfId(pitcher.getPlayerId());
 				boxes = fillBoxes((int) value, pDat.strikeouts, pDat.stillPlaying);
+				break;
+			case SO_UNDER:
+				namePart = pitcher.getName();
+				valuePart = "Under" + String.format("%.1f", value) + " SO's";
+				pDat = gameData.getPitcherOfId(pitcher.getPlayerId());
+				int winLose = pDat.strikeouts < value ? 1 : 0;
+				boxes = new char[1];
+				if (winLose == 0) {
+					boxes[1] = FAIL;
+				} else {
+					if (pDat.stillPlaying) {
+						boxes[1] = WINNING_NOW;
+					} else {
+						boxes[1] = CHECK;
+					}
+				}
 				break;
 			case ONE_HIT:
 				namePart = batter.getName();
@@ -416,6 +441,11 @@ public class Bet implements Comparable<Bet>
 				namePart = pitcher.getName();
 				valuePart = (int) value + "+ SO's";
 				boxes = emptyBoxes((int) value);		
+				break;
+			case SO_UNDER:
+				namePart = pitcher.getName();
+				valuePart = "Under" + String.format("%.1f", value) + " SO's";
+				boxes = emptyBoxes(1);
 				break;
 			case ONE_HIT:
 				namePart = batter.getName();
