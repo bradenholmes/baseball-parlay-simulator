@@ -223,7 +223,7 @@ public class Bet implements Comparable<Bet>
 					break;
 				case SO_UNDER:
 					namePart = pitcher.getName();
-					valuePart = "Under" + String.format("%.1f", value) + " SO's";
+					valuePart = "U" + String.format("%.1f", value) + " SO's";
 					break;
 				default:
 					namePart = "";
@@ -298,7 +298,7 @@ public class Bet implements Comparable<Bet>
 				break;
 			case SO_UNDER:
 				namePart = pitcher.getName();
-				valuePart = "Under" + String.format("%.1f", value) + " SO's";
+				valuePart = "U" + String.format("%.1f", value) + " SO's";
 				pDat = gameData.getPitcherOfId(pitcher.getPlayerId());
 				int winLose = pDat.strikeouts < value ? 1 : 0;
 				boxes = new char[1];
@@ -444,7 +444,7 @@ public class Bet implements Comparable<Bet>
 				break;
 			case SO_UNDER:
 				namePart = pitcher.getName();
-				valuePart = "Under" + String.format("%.1f", value) + " SO's";
+				valuePart = "U" + String.format("%.1f", value) + " SO's";
 				boxes = emptyBoxes(1);
 				break;
 			case ONE_HIT:
