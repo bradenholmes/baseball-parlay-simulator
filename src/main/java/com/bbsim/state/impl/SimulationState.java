@@ -84,7 +84,7 @@ public class SimulationState extends FunctionState
     		return new FunctionResult(App.MAIN_STATE);
     	}
     	
-    	System.out.println("getting team statistics");
+    	System.out.println("getting team statistics.... this may take a minute!");
     	Team homeTeam = new Team(StateVar.HOME, lineups.homeLineup);
     	Team awayTeam = new Team(StateVar.AWAY, lineups.awayLineup);
     	

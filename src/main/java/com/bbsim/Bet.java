@@ -219,7 +219,7 @@ public class Bet implements Comparable<Bet>
 					break;
 				case SO_OVER:
 					namePart = pitcher.getName();
-					valuePart = (int) value + "+ SO's";
+					valuePart = (int) Math.ceil(value) + "+ SO's";
 					break;
 				case SO_UNDER:
 					namePart = pitcher.getName();
@@ -303,12 +303,12 @@ public class Bet implements Comparable<Bet>
 				int winLose = pDat.strikeouts < value ? 1 : 0;
 				boxes = new char[1];
 				if (winLose == 0) {
-					boxes[1] = FAIL;
+					boxes[0] = FAIL;
 				} else {
 					if (pDat.stillPlaying) {
-						boxes[1] = WINNING_NOW;
+						boxes[0] = WINNING_NOW;
 					} else {
-						boxes[1] = CHECK;
+						boxes[0] = CHECK;
 					}
 				}
 				break;

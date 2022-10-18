@@ -44,11 +44,11 @@ public class BetSubjectState extends ScreenState
 			bet.setSubject(simData.homeData.team, simData.awayData.team);
 			this.changeState(App.BET_VALUE_STATE, bet);
 		} else if (this.bet.getBetClass() == BetClass.TEAM) {
-			System.out.println("For which team?");
+			System.out.println("For which team? (1 or 2)");
 			System.out.println("  1.) " + simData.awayData.team.getName());
 			System.out.println("  2.) " + simData.homeData.team.getName());
 		} else if (this.bet.getBetClass() == BetClass.PITCHER) {
-			System.out.println("For which pitcher?");
+			System.out.println("For which pitcher? (1 or 2)");
 			System.out.println("  1.) " + simData.awayPitcherData.pitcher.getName());
 			System.out.println("  2.) " + simData.homePitcherData.pitcher.getName());
 		} else if (this.bet.getBetClass() == BetClass.BATTER) {
@@ -59,7 +59,8 @@ public class BetSubjectState extends ScreenState
 			for (BatterData b : simData.homeBatterData) {
 				batters.add(b.batter);
 			}
-			System.out.println("For which batter?");
+			System.out.println("For which batter? (Type the number next to the player name.)");
+			System.out.println("You can enter multiple numbers with spaces inbetween (2 3 9 12)");
 			for (int i = 0; i < batters.size(); i++) {
 				Bet b = simData.completeBetSet.getBatterBet(bet.getBetType(), batters.get(i).getPlayerId());
 				String betProb = b == null ? "" : App.percentage(b.getExpectedProbability());

@@ -19,7 +19,7 @@ public class GamePickerState extends ScreenState
 	@Override
 	public void init(Object... params) {
 		this.clearConsole();
-		System.out.println("Select a game: ");
+		System.out.println("Select a game:   (enter number next to desired game)");
 		for (int i = 0; i < allGames.size(); i++) {
 			System.out.println(StringUtils.leftPad("  " + i + ".) ", 8) + allGames.get(i).toString());
 		}
